@@ -97,3 +97,17 @@ h1 {
   background: #ff003c;
   box-shadow: 0 0 15px #ff003c;
 }
+
+.movie-img {
+  width: 100%;
+  max-width: 550px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.movie-img:hover {
+  transform: scale(1.05);
+}
+
