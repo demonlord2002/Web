@@ -5,17 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Complete Movie Collection</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      padding: 20px;
+    }
+    h1 {
+      color: #ff3c78;
+    }
+    #searchBar {
+      width: 80%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+      margin-top: 10px;
+    }
+    .highlight-note {
+      background: linear-gradient(90deg, #ff0055, #ff8800);
+      color: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 15px auto;
+      width: fit-content;
+      font-weight: bold;
+      animation: blink 1.5s infinite;
+    }
+    .highlight-note a {
+      color: #fff;
+      text-decoration: underline;
+      font-weight: 700;
+    }
+    .highlight-note a:hover {
+      color: #ffe600;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .note {
+      margin-top: 10px;
+      color: #ccc;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>🎬 My Complete Movie Collection 🎬</h1>
     <p>Use the search bar below to find any movie quickly.</p>
     <input type="text" id="searchBar" placeholder="🔎 Search movies..." />
-    <p class="note">Note: Go to download Playstore Diskwala App</p>
+
+    <!-- Highlighted Diskwala Note -->
+    <div class="highlight-note">
+      ⚠️ NOTE: You need to have <strong>Diskwala</strong> to download<br>
+      <a href="https://youtu.be/dazmt81IiZ4?si=laYPuxgrTMXn7Yhd" target="_blank" rel="noopener noreferrer">
+        How to download → Click Here
+      </a>
+    </div>
+
+    <p class="note">Note: Go to Playstore and install Diskwala App before downloading</p>
   </header>
 
   <main id="movieContainer"></main>
-
   <div class="pagination" id="pagination"></div>
 
   <script src="app.js"></script>
