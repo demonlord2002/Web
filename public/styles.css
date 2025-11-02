@@ -39,13 +39,14 @@ h1 {
   box-shadow: 0 0 20px #ff3366;
 }
 
+/* === MOVIE CARD BASE === */
 .movie-card {
   background: #111;
   border-radius: 20px;
   margin: 20px auto;
-  padding: 20px;
+  padding: 15px;
   width: 90%;
-  max-width: 600px;
+  max-width: 650px;
   box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -55,9 +56,42 @@ h1 {
   box-shadow: 0 0 25px rgba(255, 0, 60, 0.7);
 }
 
+/* === NEW FLEX LAYOUT === */
+.movie-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.movie-img {
+  width: 40%;
+  max-width: 180px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.movie-img:hover {
+  transform: scale(1.05);
+}
+
+.movie-info {
+  flex: 1;
+  text-align: left;
+}
+
+.movie-info h2 {
+  font-size: 1.2rem;
+  color: #ff99cc;
+  margin-bottom: 10px;
+}
+
+/* === DOWNLOAD BUTTON === */
 .download-btn {
   display: inline-block;
-  margin: 8px;
+  margin: 8px 5px;
   padding: 10px 20px;
   color: white;
   background: #ff003c;
@@ -78,6 +112,7 @@ h1 {
   box-shadow: 0 0 20px #00ff66;
 }
 
+/* === PAGINATION === */
 .pagination {
   margin: 20px;
 }
@@ -98,16 +133,27 @@ h1 {
   box-shadow: 0 0 15px #ff003c;
 }
 
-.movie-img {
-  width: 100%;
-  max-width: 550px;
-  border-radius: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
-  transition: transform 0.3s ease;
-}
+/* === MOBILE FRIENDLY === */
+@media (max-width: 600px) {
+  .movie-row {
+    flex-direction: row;
+  }
 
-.movie-img:hover {
-  transform: scale(1.05);
-}
+  .movie-img {
+    width: 45%;
+    max-width: 150px;
+  }
 
+  .movie-info {
+    width: 50%;
+  }
+
+  .movie-info h2 {
+    font-size: 1rem;
+  }
+
+  .download-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+}
