@@ -1,4 +1,4 @@
-const container = document.getElementById("moviesList");
+const container = document.getElementById("movieContainer");
 const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
 
@@ -6,19 +6,12 @@ let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
-// ✅ Fetch movies from API
 async function fetchMovies() {
-  try {
-    const res = await fetch("/api/movies");
-    movies = await res.json();
-    displayMovies();
-  } catch (err) {
-    console.error("Error fetching movies:", err);
-    container.innerHTML = "<p style='color:red'>Failed to load movies 😢</p>";
-  }
+  const res = await fetch("/api/movies");
+  movies = await res.json();
+  displayMovies();
 }
 
-// ✅ Display current page of movies
 function displayMovies() {
   const start = (currentPage - 1) * moviesPerPage;
   const end = start + moviesPerPage;
@@ -27,12 +20,12 @@ function displayMovies() {
 
   visibleMovies.forEach(movie => {
     const card = document.createElement("div");
-    card.classList.add("movie");
+    card.classList.add("movie-card");
     card.innerHTML = `
       <h2>${movie.title}</h2>
       ${movie.qualities.map(q => `
         <p>📥 ${q.label} → 
-          <button class="download" onclick="window.open('${q.url}', '_blank')">Download</button>
+          <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
         </p>`).join('')}
     `;
     container.appendChild(card);
@@ -41,7 +34,6 @@ function displayMovies() {
   setupPagination();
 }
 
-// ✅ Setup pagination
 function setupPagination() {
   pagination.innerHTML = "";
   const pageCount = Math.ceil(movies.length / moviesPerPage);
@@ -53,12 +45,11 @@ function setupPagination() {
       currentPage = i;
       displayMovies();
     };
-    if (i === currentPage) btn.classList.add("active");
+    if (i === currentPage) btn.style.background = "#ff003c";
     pagination.appendChild(btn);
   }
 }
 
-// ✅ Search filter
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
   const filtered = movies.filter(movie =>
@@ -71,12 +62,12 @@ function displayFiltered(list) {
   container.innerHTML = "";
   list.forEach(movie => {
     const card = document.createElement("div");
-    card.classList.add("movie");
+    card.classList.add("movie-card");
     card.innerHTML = `
       <h2>${movie.title}</h2>
       ${movie.qualities.map(q => `
         <p>📥 ${q.label} → 
-          <button class="download" onclick="window.open('${q.url}', '_blank')">Download</button>
+          <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
         </p>`).join('')}
     `;
     container.appendChild(card);
@@ -84,5 +75,4 @@ function displayFiltered(list) {
   pagination.innerHTML = "";
 }
 
-// ✅ Start everything
 fetchMovies();
