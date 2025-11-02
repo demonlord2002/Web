@@ -19,6 +19,7 @@
     }
     h1 {
       color: #ff3c78;
+      text-shadow: 0 0 15px #ff3c78;
     }
     #searchBar {
       width: 80%;
@@ -28,6 +29,9 @@
       font-size: 16px;
       outline: none;
       margin-top: 10px;
+      background: #111;
+      color: white;
+      box-shadow: 0 0 10px #ff3c78;
     }
     .highlight-note {
       background: linear-gradient(90deg, #ff0055, #ff8800);
@@ -56,8 +60,93 @@
       color: #ccc;
       font-size: 14px;
     }
+
+    /* Redirecting Page Style */
+    .redirect-body {
+      background: radial-gradient(circle at center, #000, #0a0a0a);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-family: "Poppins", sans-serif;
+      color: #fff;
+    }
+    .redirect-body h2 {
+      color: #ff003c;
+      text-shadow: 0 0 15px #ff003c;
+    }
+    .eye-loader {
+      position: relative;
+      width: 80px;
+      height: 40px;
+      background: #111;
+      border-radius: 50px;
+      margin-top: 20px;
+      box-shadow: 0 0 25px rgba(255, 0, 60, 0.5);
+      overflow: hidden;
+    }
+    .eye {
+      position: absolute;
+      top: 5px;
+      width: 30px;
+      height: 30px;
+      background: #ff003c;
+      border-radius: 50%;
+      animation: eyeMove 1.5s infinite alternate ease-in-out;
+    }
+    .eye.left { left: 10px; }
+    .eye.right { right: 10px; animation-delay: 0.75s; }
+
+    @keyframes eyeMove {
+      0% { transform: translateX(-4px); }
+      100% { transform: translateX(4px); }
+    }
+
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.2);
+      border-top: 5px solid #ff003c;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      margin-top: 30px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
+
+  <script>
+    // Redirect to Chrome if opened inside Telegram/Facebook/Instagram browser
+    const ua = navigator.userAgent || '';
+    const isInAppBrowser = /Telegram|FB_IAB|Instagram|Line|Snapchat|TikTok/i.test(ua);
+
+    if (isInAppBrowser) {
+      document.write(`
+        <div class="redirect-body">
+          <h2>👁️ Redirecting to Chrome...</h2>
+          <p>Please wait a moment...</p>
+          <div class="eye-loader">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+          </div>
+          <div class="spinner"></div>
+        </div>
+      `);
+      setTimeout(() => {
+        const current = window.location.href;
+        const chromeIntent =
+          'intent://' + current.replace(/^https?:\/\//, '') +
+          '#Intent;scheme=https;package=com.android.chrome;end';
+        window.location.href = chromeIntent;
+      }, 2500);
+    }
+  </script>
 </head>
+
 <body>
   <header>
     <h1>🎬 My Complete Movie Collection 🎬</h1>
