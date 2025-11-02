@@ -1,0 +1,99 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at top, #0a0a0a, #000);
+  color: #fff;
+  text-align: center;
+}
+
+header {
+  padding: 30px 15px;
+}
+
+h1 {
+  color: #ff003c;
+  text-shadow: 0 0 20px #ff003c;
+}
+
+.note {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ff8fa3;
+}
+
+#searchBar {
+  padding: 10px;
+  border: none;
+  width: 80%;
+  max-width: 500px;
+  margin-top: 15px;
+  border-radius: 25px;
+  outline: none;
+  background: #111;
+  color: white;
+  box-shadow: 0 0 10px #ff003c;
+  transition: all 0.3s ease;
+}
+
+#searchBar:focus {
+  box-shadow: 0 0 20px #ff3366;
+}
+
+.movie-card {
+  background: #111;
+  border-radius: 20px;
+  margin: 20px auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 25px rgba(255, 0, 60, 0.7);
+}
+
+.download-btn {
+  display: inline-block;
+  margin: 8px;
+  padding: 10px 20px;
+  color: white;
+  background: #ff003c;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px #ff003c;
+}
+
+.download-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px #ff3366;
+}
+
+.download-btn:active {
+  background: #00ff66;
+  box-shadow: 0 0 20px #00ff66;
+}
+
+.pagination {
+  margin: 20px;
+}
+
+.pagination button {
+  background: #111;
+  color: #fff;
+  border: 1px solid #ff003c;
+  margin: 3px;
+  padding: 8px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination button:hover {
+  background: #ff003c;
+  box-shadow: 0 0 15px #ff003c;
+}
