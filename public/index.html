@@ -140,16 +140,15 @@
   </style>
 
   <script>
-    // Redirect to Chrome if opened inside Telegram/Facebook/Instagram browser
     document.addEventListener("DOMContentLoaded", () => {
       const ua = navigator.userAgent || '';
-      const isInAppBrowser = /Telegram|FB_IAB|Instagram|Line|Snapchat|TikTok/i.test(ua);
+      const isInAppBrowser = /Instagram|FB_IAB|FBAN|FBAV|Telegram|Line|Snapchat|TikTok/i.test(ua);
 
       if (isInAppBrowser) {
         document.body.innerHTML = `
           <div class="redirect-body">
-            <h2>👁️ Redirecting to Chrome...</h2>
-            <p>Please wait a moment...</p>
+            <h2>🚀 For best experience</h2>
+            <p>Open this page in Chrome for smooth movie access.</p>
             <div class="eye-loader">
               <div class="eye left"></div>
               <div class="eye right"></div>
@@ -160,20 +159,20 @@
         `;
 
         const openBtn = document.getElementById("openInChromeBtn");
+        const current = window.location.href.replace(/^https?:\/\//, '');
+        const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
+
+        // When user taps button
         openBtn.addEventListener("click", () => {
-          const current = window.location.href;
-          const chromeIntent = `intent://${current.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
           window.location.href = chromeIntent;
         });
 
-        // Auto try to open Chrome after delay
+        // Auto attempt Chrome open (fallback if not blocked)
         setTimeout(() => {
           try {
-            const current = window.location.href;
-            const chromeIntent = `intent://${current.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
             window.location.href = chromeIntent;
           } catch (e) {
-            console.warn("Auto redirect blocked by in-app browser");
+            console.log("Auto redirect may be blocked by in-app browser");
           }
         }, 2500);
       }
