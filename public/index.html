@@ -72,6 +72,7 @@
       text-align: center;
       font-family: "Poppins", sans-serif;
       color: #fff;
+      padding: 20px;
     }
     .redirect-body h2 {
       color: #ff003c;
@@ -117,33 +118,66 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* Chrome open button */
+    #openInChromeBtn {
+      margin-top: 20px;
+      background: #00bfff;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00bfff;
+      transition: all 0.3s ease;
+    }
+    #openInChromeBtn:active {
+      background: #ff003c;
+      box-shadow: 0 0 20px #ff003c;
+    }
   </style>
 
   <script>
     // Redirect to Chrome if opened inside Telegram/Facebook/Instagram browser
-    const ua = navigator.userAgent || '';
-    const isInAppBrowser = /Telegram|FB_IAB|Instagram|Line|Snapchat|TikTok/i.test(ua);
+    document.addEventListener("DOMContentLoaded", () => {
+      const ua = navigator.userAgent || '';
+      const isInAppBrowser = /Telegram|FB_IAB|Instagram|Line|Snapchat|TikTok/i.test(ua);
 
-    if (isInAppBrowser) {
-      document.write(`
-        <div class="redirect-body">
-          <h2>👁️ Redirecting to Chrome...</h2>
-          <p>Please wait a moment...</p>
-          <div class="eye-loader">
-            <div class="eye left"></div>
-            <div class="eye right"></div>
+      if (isInAppBrowser) {
+        document.body.innerHTML = `
+          <div class="redirect-body">
+            <h2>👁️ Redirecting to Chrome...</h2>
+            <p>Please wait a moment...</p>
+            <div class="eye-loader">
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+            </div>
+            <div class="spinner"></div>
+            <button id="openInChromeBtn">Open in Chrome</button>
           </div>
-          <div class="spinner"></div>
-        </div>
-      `);
-      setTimeout(() => {
-        const current = window.location.href;
-        const chromeIntent =
-          'intent://' + current.replace(/^https?:\/\//, '') +
-          '#Intent;scheme=https;package=com.android.chrome;end';
-        window.location.href = chromeIntent;
-      }, 2500);
-    }
+        `;
+
+        const openBtn = document.getElementById("openInChromeBtn");
+        openBtn.addEventListener("click", () => {
+          const current = window.location.href;
+          const chromeIntent = `intent://${current.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+          window.location.href = chromeIntent;
+        });
+
+        // Auto try to open Chrome after delay
+        setTimeout(() => {
+          try {
+            const current = window.location.href;
+            const chromeIntent = `intent://${current.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`;
+            window.location.href = chromeIntent;
+          } catch (e) {
+            console.warn("Auto redirect blocked by in-app browser");
+          }
+        }, 2500);
+      }
+    });
   </script>
 </head>
 
