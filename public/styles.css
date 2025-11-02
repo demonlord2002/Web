@@ -28,7 +28,7 @@ h1 {
 #searchBar {
   padding: 12px;
   border: none;
-  width: 85%;
+  width: 90%;
   max-width: 500px;
   margin-top: 20px;
   border-radius: 25px;
@@ -115,7 +115,7 @@ h1 {
   box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
 }
 
-/* ====== Bottom Banner Ad ====== */
+/* ====== Bottom Banner Ads ====== */
 #bottomBanner {
   position: fixed;
   bottom: 0;
@@ -128,7 +128,41 @@ h1 {
   padding: 5px 0;
 }
 
-/* ====== Scrollbar Glow (optional) ====== */
+/* Show desktop ad (728x90) by default, hide mobile ad */
+#desktopAd {
+  display: block;
+}
+
+#mobileAd {
+  display: none;
+}
+
+/* ====== Responsive Ads (For Mobile) ====== */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 22px;
+  }
+
+  #searchBar {
+    width: 95%;
+  }
+
+  .movie {
+    width: 95%;
+    padding: 15px;
+  }
+
+  /* Hide desktop ad, show mobile ad */
+  #desktopAd {
+    display: none;
+  }
+
+  #mobileAd {
+    display: block;
+  }
+}
+
+/* ====== Scrollbar Glow ====== */
 ::-webkit-scrollbar {
   width: 8px;
 }
