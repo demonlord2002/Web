@@ -9,6 +9,10 @@ const moviesPerPage = 10;
 async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
+
+  // ✅ Reverse order so latest uploaded movies show first
+  movies.reverse();
+
   displayMovies();
 }
 
@@ -22,7 +26,7 @@ function displayMovies() {
     const card = document.createElement("div");
     card.classList.add("movie-card");
 
-    // ✅ Image left + text/buttons right layout
+    // ✅ Image left + text/buttons right layout (unchanged)
     card.innerHTML = `
       <div class="movie-row">
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
@@ -89,4 +93,5 @@ function displayFiltered(list) {
   pagination.innerHTML = "";
 }
 
+// ✅ Load all movies (latest-first)
 fetchMovies();
