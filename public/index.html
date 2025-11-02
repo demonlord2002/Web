@@ -3,186 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Complete Movie Collection 🎬</title>
+  <title>My Complete Movie Collection</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" type="image/png" href="favicon.png" />
-
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: 'Poppins', sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0 0 100px 0; /* space for banner */
-    }
-
-    h1 {
-      color: #ff4444;
-      text-shadow: 0 0 10px #ff0000, 0 0 20px #ff4444;
-      font-size: 1.8rem;
-      margin-top: 25px;
-    }
-
-    p {
-      color: #ff8fa3;
-      font-size: 14px;
-    }
-
-    #searchBar {
-      width: 90%;
-      max-width: 600px;
-      padding: 12px;
-      margin: 20px auto;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background: #111;
-      color: #fff;
-      font-size: 16px;
-      box-shadow: 0 0 10px #ff0000;
-      transition: 0.3s;
-    }
-
-    #searchBar:focus {
-      box-shadow: 0 0 20px #ff3333;
-    }
-
-    .movie {
-      background: #111;
-      margin: 15px auto;
-      padding: 15px;
-      width: 90%;
-      max-width: 700px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px #ff0000;
-      transition: 0.3s;
-    }
-
-    .movie:hover {
-      box-shadow: 0 0 25px #00ff00;
-      transform: scale(1.02);
-    }
-
-    .download {
-      background: #ff0000;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: 0.3s;
-      box-shadow: 0 0 15px #ff0000;
-    }
-
-    .download:hover {
-      background: #00ff00;
-      box-shadow: 0 0 25px #00ff00;
-    }
-
-    #pagination {
-      margin: 20px 0;
-    }
-
-    #pagination button {
-      background: #111;
-      color: #fff;
-      border: 1px solid #ff0000;
-      padding: 8px 15px;
-      margin: 5px;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: 0.3s;
-    }
-
-    #pagination button.active {
-      background: #ff0000;
-      box-shadow: 0 0 10px #ff0000;
-    }
-
-    #pagination button:hover {
-      background: #00ff00;
-      color: #000;
-    }
-
-    /* 🔥 Bottom Banner Ads Styling */
-    #bottomBanner {
-      width: 100%;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      text-align: center;
-      background: #000;
-      z-index: 1000;
-      box-shadow: 0 -2px 10px rgba(255, 0, 0, 0.5);
-    }
-
-    #desktopAd {
-      display: block;
-    }
-
-    #mobileAd {
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      #desktopAd {
-        display: none;
-      }
-      #mobileAd {
-        display: block;
-      }
-    }
-  </style>
 </head>
 <body>
+  <header>
+    <h1>🎬 My Complete Movie Collection 🎬</h1>
+    <p>Use the search bar below to find any movie quickly.</p>
+    <input type="text" id="searchBar" placeholder="🔎 Search movies..." />
+    <p class="note">Note: Go to download Playstore Diskwala App</p>
+  </header>
 
-  <h1>🎬 My Complete Movie Collection 🎬</h1>
-  <p>Use the search bar below to find any movie quickly.</p>
-  <input type="text" id="searchBar" placeholder="Search your favorite movie..." />
+  <main id="movieContainer"></main>
 
-  <div id="moviesList"></div>
+  <div class="pagination" id="pagination"></div>
 
-  <div id="pagination"></div>
+  <script src="app.js"></script>
 
-  <!-- 🔥 Bottom Banner Ad -->
-  <div id="bottomBanner">
-    <!-- Desktop Ad 728x90 -->
-    <div id="desktopAd">
-      <script type="text/javascript">
-        atOptions = {
-          'key': 'b434f3cb182bdaa6a260cbaf33344a15',
-          'format': 'iframe',
-          'height': 90,
-          'width': 728,
-          'params': {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/b434f3cb182bdaa6a260cbaf33344a15/invoke.js"></script>
-    </div>
-
-    <!-- Mobile Ad 320x50 -->
-    <div id="mobileAd">
-      <script type="text/javascript">
-        atOptions = {
-          'key': 'bc8a2178ea794055fe544bb527dec2f2',
-          'format': 'iframe',
-          'height': 50,
-          'width': 320,
-          'params': {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/bc8a2178ea794055fe544bb527dec2f2/invoke.js"></script>
-    </div>
-  </div>
-
-  <!-- 💥 Popup Ads Script -->
+  <!-- 💰 Your Adstraa Codes Start Here -->
+  <!-- Pop-up Ads -->
   <script type='text/javascript' src='//pl27968563.effectivegatecpm.com/db/06/62/db0662d7b91402fccda37f93a2b02503.js'></script>
 
-  <!-- 💬 Social Bar Ads Script -->
+  <!-- Social Bar Ads -->
   <script type='text/javascript' src='//pl27968634.effectivegatecpm.com/8d/3c/b0/8d3cb0e6c2cd60e6b824408d9f25e4ea.js'></script>
-
+  <!-- 💰 Your Adstraa Codes End Here -->
 </body>
 </html>
