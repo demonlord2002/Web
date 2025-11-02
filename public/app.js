@@ -21,13 +21,20 @@ function displayMovies() {
   visibleMovies.forEach(movie => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
+
+    // ✅ Image left + text/buttons right layout
     card.innerHTML = `
-      <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
-      <h2>${movie.title}</h2>
-      ${movie.qualities.map(q => `
-        <p>📥 ${q.label} → 
-          <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
-        </p>`).join('')}
+      <div class="movie-row">
+        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} → 
+              <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
+            </p>
+          `).join('')}
+        </div>
+      </div>
     `;
     container.appendChild(card);
   });
@@ -65,12 +72,17 @@ function displayFiltered(list) {
     const card = document.createElement("div");
     card.classList.add("movie-card");
     card.innerHTML = `
-      <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
-      <h2>${movie.title}</h2>
-      ${movie.qualities.map(q => `
-        <p>📥 ${q.label} → 
-          <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
-        </p>`).join('')}
+      <div class="movie-row">
+        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} → 
+              <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
+            </p>
+          `).join('')}
+        </div>
+      </div>
     `;
     container.appendChild(card);
   });
