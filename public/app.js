@@ -22,6 +22,7 @@ function displayMovies() {
     const card = document.createElement("div");
     card.classList.add("movie-card");
     card.innerHTML = `
+      <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
       <h2>${movie.title}</h2>
       ${movie.qualities.map(q => `
         <p>📥 ${q.label} → 
@@ -64,6 +65,7 @@ function displayFiltered(list) {
     const card = document.createElement("div");
     card.classList.add("movie-card");
     card.innerHTML = `
+      <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
       <h2>${movie.title}</h2>
       ${movie.qualities.map(q => `
         <p>📥 ${q.label} → 
