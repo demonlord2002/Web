@@ -1,9 +1,11 @@
+/* ====== Global Style ====== */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
   background: radial-gradient(circle at top, #0a0a0a, #000);
   color: #fff;
   text-align: center;
+  overflow-x: hidden;
 }
 
 header {
@@ -12,7 +14,8 @@ header {
 
 h1 {
   color: #ff003c;
-  text-shadow: 0 0 20px #ff003c;
+  text-shadow: 0 0 20px #ff003c, 0 0 40px #ff003c;
+  letter-spacing: 1px;
 }
 
 .note {
@@ -21,41 +24,46 @@ h1 {
   color: #ff8fa3;
 }
 
+/* ====== Search Bar ====== */
 #searchBar {
-  padding: 10px;
+  padding: 12px;
   border: none;
-  width: 80%;
+  width: 85%;
   max-width: 500px;
-  margin-top: 15px;
+  margin-top: 20px;
   border-radius: 25px;
   outline: none;
   background: #111;
   color: white;
-  box-shadow: 0 0 10px #ff003c;
+  font-size: 16px;
+  box-shadow: 0 0 15px #ff003c;
   transition: all 0.3s ease;
 }
 
 #searchBar:focus {
-  box-shadow: 0 0 20px #ff3366;
+  box-shadow: 0 0 25px #ff3366;
+  transform: scale(1.02);
 }
 
-.movie-card {
+/* ====== Movie Card ====== */
+.movie {
   background: #111;
   border-radius: 20px;
-  margin: 20px auto;
+  margin: 25px auto;
   padding: 20px;
   width: 90%;
   max-width: 600px;
-  box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
+  box-shadow: 0 0 20px rgba(255, 0, 60, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.movie-card:hover {
+.movie:hover {
   transform: scale(1.03);
-  box-shadow: 0 0 25px rgba(255, 0, 60, 0.7);
+  box-shadow: 0 0 30px rgba(255, 0, 60, 0.7);
 }
 
-.download-btn {
+/* ====== Download Buttons ====== */
+.download {
   display: inline-block;
   margin: 8px;
   padding: 10px 20px;
@@ -65,39 +73,49 @@ h1 {
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 15px #ff003c;
+  font-weight: 500;
+  box-shadow: 0 0 20px #ff003c;
 }
 
-.download-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px #ff3366;
+.download:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 30px #ff3366;
 }
 
-.download-btn:active {
+.download:active {
   background: #00ff66;
-  box-shadow: 0 0 20px #00ff66;
+  box-shadow: 0 0 25px #00ff66;
+  transform: scale(0.98);
 }
 
-.pagination {
-  margin: 20px;
+/* ====== Pagination ====== */
+#pagination {
+  margin: 25px 0 80px 0;
 }
 
-.pagination button {
+#pagination button {
   background: #111;
   color: #fff;
   border: 1px solid #ff003c;
-  margin: 3px;
+  margin: 5px;
   padding: 8px 15px;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 500;
 }
 
-.pagination button:hover {
+#pagination button:hover {
   background: #ff003c;
-  box-shadow: 0 0 15px #ff003c;
+  box-shadow: 0 0 20px #ff003c;
 }
 
+#pagination button.active {
+  background: #ff003c;
+  box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
+}
+
+/* ====== Bottom Banner Ad ====== */
 #bottomBanner {
   position: fixed;
   bottom: 0;
@@ -105,7 +123,21 @@ h1 {
   width: 100%;
   text-align: center;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.7);
-  box-shadow: 0 -2px 10px rgba(255, 0, 60, 0.5);
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 -2px 15px rgba(255, 0, 60, 0.6);
   padding: 5px 0;
+}
+
+/* ====== Scrollbar Glow (optional) ====== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff003c;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ff3366;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00ff66;
+  box-shadow: 0 0 15px #00ff66;
 }
