@@ -10,7 +10,7 @@ async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
 
-  // ✅ Reverse order so latest uploaded movies show first
+  // ✅ Show latest uploads first
   movies.reverse();
 
   displayMovies();
@@ -36,7 +36,7 @@ function displayMovies() {
               (q) => `
               <p>📥 ${q.label} →
                 <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Generate Link</button>
-                <span class="timer-text" style="display:none; color:#fff; margin-left:10px;"></span>
+                <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
               </p>
             `
@@ -90,7 +90,7 @@ function displayFiltered(list) {
               (q) => `
               <p>📥 ${q.label} →
                 <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Generate Link</button>
-                <span class="timer-text" style="display:none; color:#fff; margin-left:10px;"></span>
+                <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
               </p>
             `
@@ -104,49 +104,45 @@ function displayFiltered(list) {
   pagination.innerHTML = "";
 }
 
-/* ✅ Fullscreen Native Banner Ad + 18s Timer */
+/* ✅ Fullscreen Smart-Link Ad + 18s Timer */
 function showAdAndStartTimer(url, btn) {
   // Create overlay
   const overlay = document.createElement("div");
   overlay.className = "fullscreen-ad-overlay";
   overlay.innerHTML = `
     <div class="ad-container">
-      <div id="ad-slot"></div>
-      <p class="tap-text">👉 Tap the ad to start countdown</p>
+      <h2>Advertisement</h2>
+      <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe"
+         target="_blank" class="ad-download-btn">Download Now</a>
+      <p class="tap-text">Click the button above to open the ad</p>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  // Insert Adstraa ad script dynamically
-  const adScript = document.createElement("script");
-  adScript.async = true;
-  adScript.dataset.cfasync = "false";
-  adScript.src = "//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js";
-  overlay.querySelector("#ad-slot").appendChild(adScript);
+  const adButton = overlay.querySelector(".ad-download-btn");
+  const tapText = overlay.querySelector(".tap-text");
 
-  // When user taps anywhere on ad
-  overlay.addEventListener("click", () => {
-    const tapText = overlay.querySelector(".tap-text");
-    if (!tapText.classList.contains("active")) {
-      tapText.classList.add("active");
-      tapText.textContent = "⏳ Please wait 18s...";
-      startCountdown(url, btn, overlay, tapText);
-    }
-  });
-}
+  adButton.addEventListener("click", () => {
+    // open ad in new tab
+    window.open(
+      "https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe",
+      "_blank"
+    );
 
-function startCountdown(url, btn, overlay, tapText) {
-  let timeLeft = 18;
-  const timer = setInterval(() => {
-    timeLeft--;
+    // Start countdown
+    let timeLeft = 18;
     tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      overlay.remove(); // close ad
-      tapText.classList.remove("active");
-      showFinalButton(btn);
-    }
-  }, 1000);
+    const timer = setInterval(() => {
+      timeLeft--;
+      tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        overlay.remove(); // close popup
+        showFinalButton(btn);
+      }
+    }, 1000);
+  });
 }
 
 function showFinalButton(btn) {
@@ -158,5 +154,5 @@ function showFinalButton(btn) {
   finalLink.classList.add("show-download");
 }
 
-// ✅ Load all movies (latest-first)
+// ✅ Load all movies
 fetchMovies();
