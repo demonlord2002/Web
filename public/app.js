@@ -33,8 +33,10 @@ function displayMovies() {
         <div class="movie-info">
           <h2>${movie.title}</h2>
           ${movie.qualities.map(q => `
-            <p>📥 ${q.label} → 
-              <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="startDownloadTimer('${q.url}', this)">Generate Link</button>
+              <span class="timer-text" style="display:none; color:#fff; margin-left:10px;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
             </p>
           `).join('')}
         </div>
@@ -81,8 +83,10 @@ function displayFiltered(list) {
         <div class="movie-info">
           <h2>${movie.title}</h2>
           ${movie.qualities.map(q => `
-            <p>📥 ${q.label} → 
-              <button class="download-btn" onclick="window.open('${q.url}', '_blank')">Download</button>
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="startDownloadTimer('${q.url}', this)">Generate Link</button>
+              <span class="timer-text" style="display:none; color:#fff; margin-left:10px;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
             </p>
           `).join('')}
         </div>
@@ -91,6 +95,30 @@ function displayFiltered(list) {
     container.appendChild(card);
   });
   pagination.innerHTML = "";
+}
+
+// ✅ 18-second timer feature (NEW)
+function startDownloadTimer(url, btn) {
+  btn.disabled = true;
+  btn.style.display = "none";
+
+  const timerEl = btn.nextElementSibling; // span.timer-text
+  const finalLink = timerEl.nextElementSibling; // a.final-download-btn
+
+  let timeLeft = 18;
+  timerEl.style.display = "inline";
+  timerEl.textContent = `Please wait ${timeLeft}s...`;
+
+  const countdown = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = `Please wait ${timeLeft}s...`;
+
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      timerEl.style.display = "none";
+      finalLink.style.display = "inline-block";
+    }
+  }, 1000);
 }
 
 // ✅ Load all movies (latest-first)
