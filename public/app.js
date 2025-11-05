@@ -105,10 +105,9 @@ function displayFiltered(list) {
 }
 
 /* ========================================================= */
-/* ✅ FULLSCREEN SMART-LINK AD + 18s TIMER FUNCTION          */
+/* ✅ FULLSCREEN SMART-LINK AD + REAL 18s WAIT DETECTION     */
 /* ========================================================= */
 function showAdAndStartTimer(url, btn) {
-  // Create overlay
   const overlay = document.createElement("div");
   overlay.className = "fullscreen-ad-overlay";
   overlay.innerHTML = `
@@ -117,7 +116,7 @@ function showAdAndStartTimer(url, btn) {
       <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe"
          target="_blank" class="ad-download-btn"
          style="display:inline-block; background:#ff003c; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; box-shadow:0 0 15px #ff003c; transition:all 0.3s ease;">Download Now</a>
-      <p class="tap-text">Click the red button above to open the ad</p>
+      <p class="tap-text">Click the red button to open the ad. Stay 18s on that page!</p>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -125,35 +124,54 @@ function showAdAndStartTimer(url, btn) {
   const adButton = overlay.querySelector(".ad-download-btn");
   const tapText = overlay.querySelector(".tap-text");
 
+  let adOpened = false;
+  let adStartTime = 0;
+
   adButton.addEventListener("click", () => {
-    // Change to yellow
     adButton.style.background = "#ffd700";
     adButton.style.boxShadow = "0 0 25px #ffd700";
 
-    // Open ad in new tab
+    adOpened = true;
+    adStartTime = Date.now();
     window.open(
       "https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe",
       "_blank"
     );
+    tapText.textContent = "✅ Ad opened. Please stay 18s there before returning.";
+  });
 
-    // Start countdown
-    let timeLeft = 18;
-    tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
-    tapText.style.color = "#00ff99";
-    const timer = setInterval(() => {
-      timeLeft--;
-      tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
+  // Detect when user comes back to site
+  window.addEventListener("focus", function onReturn() {
+    if (!adOpened) return;
 
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        overlay.remove(); // close popup
-        showFinalButton(btn);
-      }
-    }, 1000);
+    const elapsed = (Date.now() - adStartTime) / 1000;
+    const remaining = 18 - elapsed;
+
+    if (remaining <= 0) {
+      overlay.remove();
+      showFinalButton(btn);
+      window.removeEventListener("focus", onReturn);
+    } else {
+      tapText.textContent = `⏳ You stayed ${Math.floor(
+        elapsed
+      )}s, please wait ${Math.ceil(
+        remaining
+      )}s more on ad page before returning.`;
+      // Keep checking until user really waits 18s
+      const interval = setInterval(() => {
+        const newElapsed = (Date.now() - adStartTime) / 1000;
+        if (newElapsed >= 18) {
+          clearInterval(interval);
+          overlay.remove();
+          showFinalButton(btn);
+          window.removeEventListener("focus", onReturn);
+        }
+      }, 1000);
+    }
   });
 }
 
-/* ✅ Show green "Click Here" button after ad finishes */
+/* ✅ Show green "Click Here" button after ad wait */
 function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
@@ -163,5 +181,5 @@ function showFinalButton(btn) {
   finalLink.classList.add("show-download");
 }
 
-// ✅ Load all movies
+/* ✅ Load all movies */
 fetchMovies();
