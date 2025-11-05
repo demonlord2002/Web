@@ -90,6 +90,7 @@
       max-width: 400px;
       width: 90%;
       text-align: center;
+      cursor: pointer;
     }
     #timerText {
       margin-top: 12px;
@@ -181,36 +182,52 @@
   </div>
 
   <script>
-    const interstitial=document.getElementById("interstitialAd");
-    const adBox=document.getElementById("adBox");
-    const timerText=document.getElementById("timerText");
-    const closeAd=document.getElementById("closeAd");
-    let adClicked=false,seconds=15,interval;
+    const interstitial = document.getElementById("interstitialAd");
+    const adBox = document.getElementById("adBox");
+    const timerText = document.getElementById("timerText");
+    const closeAd = document.getElementById("closeAd");
 
-    adBox.addEventListener("click",()=>{
-      if(adClicked)return;
-      adClicked=true;
-      timerText.innerHTML=`Please wait <span id="sec">${seconds}</span> seconds...`;
-      const span=document.getElementById("sec");
-      interval=setInterval(()=>{
-        seconds--;span.textContent=seconds;
-        if(seconds<=0){
+    let adClicked = false;
+    let seconds = 15;
+    let interval;
+
+    adBox.addEventListener("click", (e) => {
+      if (adClicked) return;
+      adClicked = true;
+
+      // ⏩ Allow ad to open naturally
+      const adLink = adBox.querySelector("a[href]");
+      if (adLink) {
+        const adUrl = adLink.getAttribute("href");
+        window.open(adUrl, "_blank");
+      }
+
+      timerText.innerHTML = `Please wait <span id="sec">${seconds}</span> seconds...`;
+      const span = document.getElementById("sec");
+
+      interval = setInterval(() => {
+        seconds--;
+        span.textContent = seconds;
+        if (seconds <= 0) {
           clearInterval(interval);
-          timerText.textContent="You can now continue!";
-          closeAd.style.display="inline-block";
+          timerText.textContent = "You can now continue!";
+          closeAd.style.display = "inline-block";
         }
-      },1000);
+      }, 1000);
     });
 
-    closeAd.addEventListener("click",()=>{
-      interstitial.style.opacity="0";
-      setTimeout(()=>interstitial.remove(),500);
+    closeAd.addEventListener("click", () => {
+      interstitial.style.opacity = "0";
+      setTimeout(() => interstitial.remove(), 500);
     });
 
-    // Fallback remove if blocked
-    setTimeout(()=>{
-      if(!adClicked){interstitial.style.opacity="0";setTimeout(()=>interstitial.remove(),500);}
-    },40000);
+    // Safety auto-remove
+    setTimeout(() => {
+      if (!adClicked) {
+        interstitial.style.opacity = "0";
+        setTimeout(() => interstitial.remove(), 500);
+      }
+    }, 40000);
   </script>
 </body>
 </html>
