@@ -99,12 +99,10 @@
     }
     .eye.left { left: 10px; }
     .eye.right { right: 10px; animation-delay: 0.75s; }
-
     @keyframes eyeMove {
       0% { transform: translateX(-4px); }
       100% { transform: translateX(4px); }
     }
-
     .spinner {
       border: 5px solid rgba(255, 255, 255, 0.2);
       border-top: 5px solid #ff003c;
@@ -118,7 +116,6 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
     #openInChromeBtn {
       margin-top: 20px;
       background: #00bfff;
@@ -198,19 +195,11 @@
             <button id="openInChromeBtn">Open in Chrome</button>
           </div>
         `;
-
         const openBtn = document.getElementById("openInChromeBtn");
         const current = window.location.href.replace(/^https?:\/\//, '');
         const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
-
-        openBtn.addEventListener("click", () => {
-          window.location.href = chromeIntent;
-        });
-
-        setTimeout(() => {
-          try { window.location.href = chromeIntent; } 
-          catch (e) { console.log("Redirect blocked"); }
-        }, 2500);
+        openBtn.addEventListener("click", () => window.location.href = chromeIntent);
+        setTimeout(() => { try { window.location.href = chromeIntent; } catch (e) {} }, 2500);
       }
     });
   </script>
@@ -236,12 +225,11 @@
 
   <script src="app.js"></script>
 
-  <!-- 💰 Your Adstraa Codes Start -->
+  <!-- 💰 Adstraa Codes -->
   <script type='text/javascript' src='//pl27968563.effectivegatecpm.com/db/06/62/db0662d7b91402fccda37f93a2b02503.js'></script>
   <script type='text/javascript' src='//pl27968634.effectivegatecpm.com/8d/3c/b0/8d3cb0e6c2cd60e6b824408d9f25e4ea.js'></script>
-  <!-- 💰 Your Adstraa Codes End -->
 
-  <!-- ✅ Sticky Bottom Banner Ad -->
+  <!-- ✅ Sticky Banner -->
   <div id="sticky-ad" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,0.15);z-index:9999;text-align:center;padding:5px 0;">
     <span id="close-ad" style="position:absolute;right:10px;top:5px;color:#000;background:#fff;border-radius:50%;width:25px;height:25px;line-height:25px;text-align:center;font-weight:bold;font-size:18px;cursor:pointer;border:1px solid #ccc;">×</span>
     <script type="text/javascript">
@@ -255,38 +243,57 @@
       const ad = document.getElementById("sticky-ad");
       ad.style.transition = "opacity 0.4s ease";
       ad.style.opacity = "0";
-      setTimeout(() => { ad.style.display = "none"; }, 400);
+      setTimeout(() => ad.style.display = "none", 400);
     });
   </script>
 
-  <!-- ✅ Interstitial Ad (Full Screen with 15s Timer) -->
+  <!-- ✅ Interstitial Ad -->
   <div id="interstitialAd">
     <div id="adBox">
-      <!-- 🔥 Your Native Adstraa Banner -->
-      <script async="async" data-cfasync="false" src="//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js"></script>
-      <div id="container-ea5f5730b58a527b1a36d686e5d2fbf3"></div>
+      <!-- 🔥 Adstraa 300x250 Banner -->
+      <div id="adArea" style="cursor:pointer;">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'da33dbec4b88e1a285c9a7d7506ce083',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/da33dbec4b88e1a285c9a7d7506ce083/invoke.js"></script>
+      </div>
 
-      <p id="timerText">Please wait <span id="adTimer">15</span> seconds...</p>
+      <p id="timerText">👉 Tap the ad to start countdown</p>
       <button id="closeAd">Continue to Site</button>
     </div>
   </div>
 
   <script>
-    let adSeconds = 15;
-    const timer = document.getElementById("adTimer");
-    const closeAd = document.getElementById("closeAd");
     const interstitial = document.getElementById("interstitialAd");
+    const closeAd = document.getElementById("closeAd");
+    const timerText = document.getElementById("timerText");
+    const adArea = document.getElementById("adArea");
+    let adClicked = false;
+    let adSeconds = 15;
+    let countdown;
 
-    const adCountdown = setInterval(() => {
-      adSeconds--;
-      timer.textContent = adSeconds;
-      if (adSeconds <= 0) {
-        clearInterval(adCountdown);
-        closeAd.style.display = "inline-block";
-        timer.textContent = "0";
-        document.getElementById("timerText").textContent = "You can now continue!";
-      }
-    }, 1000);
+    adArea.addEventListener("click", () => {
+      if (adClicked) return;
+      adClicked = true;
+      timerText.innerHTML = `Please wait <span id="adTimer">${adSeconds}</span> seconds...`;
+      const timerSpan = document.getElementById("adTimer");
+
+      countdown = setInterval(() => {
+        adSeconds--;
+        timerSpan.textContent = adSeconds;
+        if (adSeconds <= 0) {
+          clearInterval(countdown);
+          timerText.textContent = "You can now continue!";
+          closeAd.style.display = "inline-block";
+        }
+      }, 1000);
+    });
 
     closeAd.addEventListener("click", () => {
       interstitial.style.transition = "opacity 0.5s ease";
