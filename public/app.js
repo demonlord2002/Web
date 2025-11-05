@@ -112,7 +112,7 @@ function showAdAndStartTimer(url, btn) {
   overlay.innerHTML = `
     <div class="ad-container">
       <h2>Advertisement</h2>
-      <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe"
+      <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe"
          target="_blank" class="ad-download-btn">Download Now</a>
       <p class="tap-text">Click the button above to open the ad</p>
     </div>
