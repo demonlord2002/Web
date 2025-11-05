@@ -104,7 +104,9 @@ function displayFiltered(list) {
   pagination.innerHTML = "";
 }
 
-/* ✅ Fullscreen Smart-Link Ad + 18s Timer */
+/* ========================================================= */
+/* ✅ FULLSCREEN SMART-LINK AD + 18s TIMER FUNCTION          */
+/* ========================================================= */
 function showAdAndStartTimer(url, btn) {
   // Create overlay
   const overlay = document.createElement("div");
@@ -113,8 +115,9 @@ function showAdAndStartTimer(url, btn) {
     <div class="ad-container">
       <h2>Advertisement</h2>
       <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe"
-         target="_blank" class="ad-download-btn">Download Now</a>
-      <p class="tap-text">Click the button above to open the ad</p>
+         target="_blank" class="ad-download-btn"
+         style="display:inline-block; background:#ff003c; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; box-shadow:0 0 15px #ff003c; transition:all 0.3s ease;">Download Now</a>
+      <p class="tap-text">Click the red button above to open the ad</p>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -123,15 +126,20 @@ function showAdAndStartTimer(url, btn) {
   const tapText = overlay.querySelector(".tap-text");
 
   adButton.addEventListener("click", () => {
-    // open ad in new tab
+    // Change to yellow
+    adButton.style.background = "#ffd700";
+    adButton.style.boxShadow = "0 0 25px #ffd700";
+
+    // Open ad in new tab
     window.open(
-      "https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe",
+      "https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe",
       "_blank"
     );
 
     // Start countdown
     let timeLeft = 18;
     tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
+    tapText.style.color = "#00ff99";
     const timer = setInterval(() => {
       timeLeft--;
       tapText.textContent = `⏳ Please wait ${timeLeft}s...`;
@@ -145,6 +153,7 @@ function showAdAndStartTimer(url, btn) {
   });
 }
 
+/* ✅ Show green "Click Here" button after ad finishes */
 function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
