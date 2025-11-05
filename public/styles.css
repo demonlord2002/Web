@@ -259,3 +259,39 @@ h1 {
     width: 90%;
   }
 }
+
+/* ========================================================= */
+/* === NEW FEATURE: DOWNLOAD TIMER + GREEN FINAL BUTTON ==== */
+/* ========================================================= */
+
+.timer-text {
+  display: inline-block;
+  color: #ffccd5;
+  font-size: 14px;
+  margin-left: 10px;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.final-download-btn {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 8px 18px;
+  background-color: #2ecc71; /* green */
+  color: #fff;
+  border-radius: 25px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+  transition: all 0.3s ease;
+}
+
+.final-download-btn:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);
+}
