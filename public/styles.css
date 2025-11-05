@@ -160,9 +160,8 @@ h1 {
 }
 
 /* ========================================================= */
-/* === NEW SECTION: LANDING PAGE + EPISODE LIST (SAME STYLE) */
+/* === LANDING PAGE + EPISODE LIST ========================== */
 /* ========================================================= */
-
 .landing-container {
   display: flex;
   flex-wrap: wrap;
@@ -261,9 +260,8 @@ h1 {
 }
 
 /* ========================================================= */
-/* === NEW FEATURE: DOWNLOAD TIMER + GREEN FINAL BUTTON ==== */
+/* === DOWNLOAD TIMER + GREEN FINAL BUTTON ================= */
 /* ========================================================= */
-
 .timer-text {
   display: inline-block;
   color: #ffccd5;
@@ -281,7 +279,7 @@ h1 {
   display: inline-block;
   margin-left: 10px;
   padding: 8px 18px;
-  background-color: #2ecc71; /* green */
+  background-color: #2ecc71;
   color: #fff;
   border-radius: 25px;
   font-weight: 600;
@@ -294,4 +292,77 @@ h1 {
   background-color: #27ae60;
   transform: scale(1.05);
   box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);
+}
+
+/* ========================================================= */
+/* === FULLSCREEN AD OVERLAY (NEW FEATURE) ================= */
+/* ========================================================= */
+.fullscreen-ad-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 0, 15, 0.97);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.ad-container {
+  background: #111;
+  border: 2px solid #ff0066;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 30px #ff0066;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: glowPulse 2s infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 15px #ff0066; }
+  100% { box-shadow: 0 0 40px #ff3399; }
+}
+
+.tap-text {
+  color: #ff99cc;
+  font-weight: bold;
+  margin-top: 12px;
+  font-size: 1rem;
+  text-shadow: 0 0 10px #ff3399;
+}
+
+.tap-text.active {
+  color: #00ff99;
+  text-shadow: 0 0 15px #00ff99;
+}
+
+.show-download {
+  animation: appear 0.4s ease forwards;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  .ad-container {
+    max-width: 320px;
+    padding: 15px;
+  }
+  .tap-text {
+    font-size: 0.9rem;
+  }
 }
