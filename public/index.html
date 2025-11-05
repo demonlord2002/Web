@@ -61,7 +61,7 @@
       font-size: 14px;
     }
 
-    /* Redirecting Page Style */
+    /* Redirect Page */
     .redirect-body {
       background: radial-gradient(circle at center, #000, #0a0a0a);
       height: 100vh;
@@ -119,7 +119,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Chrome open button */
     #openInChromeBtn {
       margin-top: 20px;
       background: #00bfff;
@@ -136,6 +135,48 @@
     #openInChromeBtn:active {
       background: #ff003c;
       box-shadow: 0 0 20px #ff003c;
+    }
+
+    /* ✅ Interstitial Ad Style */
+    #interstitialAd {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 10, 0.97);
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    #adBox {
+      background: #111;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 0 25px rgba(255, 0, 60, 0.5);
+      max-width: 360px;
+      width: 90%;
+    }
+    #closeAd {
+      margin-top: 15px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 25px;
+      background: #00ff66;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+    }
+    #timerText {
+      margin-top: 10px;
+      color: #ff99cc;
+      font-size: 16px;
     }
   </style>
 
@@ -167,11 +208,8 @@
         });
 
         setTimeout(() => {
-          try {
-            window.location.href = chromeIntent;
-          } catch (e) {
-            console.log("Auto redirect may be blocked by in-app browser");
-          }
+          try { window.location.href = chromeIntent; } 
+          catch (e) { console.log("Redirect blocked"); }
         }, 2500);
       }
     });
@@ -190,7 +228,6 @@
         How to download → Click Here
       </a>
     </div>
-
     <p class="note">Note: Go to Playstore and install Diskwala App before downloading</p>
   </header>
 
@@ -199,48 +236,16 @@
 
   <script src="app.js"></script>
 
-  <!-- 💰 Your Adstraa Codes Start Here -->
+  <!-- 💰 Your Adstraa Codes Start -->
   <script type='text/javascript' src='//pl27968563.effectivegatecpm.com/db/06/62/db0662d7b91402fccda37f93a2b02503.js'></script>
   <script type='text/javascript' src='//pl27968634.effectivegatecpm.com/8d/3c/b0/8d3cb0e6c2cd60e6b824408d9f25e4ea.js'></script>
-  <!-- 💰 Your Adstraa Codes End Here -->
+  <!-- 💰 Your Adstraa Codes End -->
 
-  <!-- ✅ Sticky Bottom Banner Ad with Close Button -->
-  <div id="sticky-ad" style="
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #fff;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
-    z-index: 9999;
-    text-align: center;
-    padding: 5px 0;
-  ">
-    <span id="close-ad" style="
-      position: absolute;
-      right: 10px;
-      top: 5px;
-      color: #000;
-      background: #fff;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      line-height: 25px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 18px;
-      cursor: pointer;
-      border: 1px solid #ccc;
-    ">×</span>
-
+  <!-- ✅ Sticky Bottom Banner Ad -->
+  <div id="sticky-ad" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,0.15);z-index:9999;text-align:center;padding:5px 0;">
+    <span id="close-ad" style="position:absolute;right:10px;top:5px;color:#000;background:#fff;border-radius:50%;width:25px;height:25px;line-height:25px;text-align:center;font-weight:bold;font-size:18px;cursor:pointer;border:1px solid #ccc;">×</span>
     <script type="text/javascript">
-      atOptions = {
-        'key' : 'bc8a2178ea794055fe544bb527dec2f2',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
+      atOptions = { 'key' : 'bc8a2178ea794055fe544bb527dec2f2', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
     </script>
     <script type="text/javascript" src="//www.highperformanceformat.com/bc8a2178ea794055fe544bb527dec2f2/invoke.js"></script>
   </div>
@@ -251,6 +256,42 @@
       ad.style.transition = "opacity 0.4s ease";
       ad.style.opacity = "0";
       setTimeout(() => { ad.style.display = "none"; }, 400);
+    });
+  </script>
+
+  <!-- ✅ Interstitial Ad (Full Screen with 15s Timer) -->
+  <div id="interstitialAd">
+    <div id="adBox">
+      <!-- 🔥 Your Native Adstraa Banner -->
+      <script async="async" data-cfasync="false" src="//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js"></script>
+      <div id="container-ea5f5730b58a527b1a36d686e5d2fbf3"></div>
+
+      <p id="timerText">Please wait <span id="adTimer">15</span> seconds...</p>
+      <button id="closeAd">Continue to Site</button>
+    </div>
+  </div>
+
+  <script>
+    let adSeconds = 15;
+    const timer = document.getElementById("adTimer");
+    const closeAd = document.getElementById("closeAd");
+    const interstitial = document.getElementById("interstitialAd");
+
+    const adCountdown = setInterval(() => {
+      adSeconds--;
+      timer.textContent = adSeconds;
+      if (adSeconds <= 0) {
+        clearInterval(adCountdown);
+        closeAd.style.display = "inline-block";
+        timer.textContent = "0";
+        document.getElementById("timerText").textContent = "You can now continue!";
+      }
+    }, 1000);
+
+    closeAd.addEventListener("click", () => {
+      interstitial.style.transition = "opacity 0.5s ease";
+      interstitial.style.opacity = "0";
+      setTimeout(() => interstitial.remove(), 500);
     });
   </script>
 </body>
