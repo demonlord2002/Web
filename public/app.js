@@ -6,24 +6,49 @@ let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
-/* ========================================================= */
-/* ✅ AD BLOCK DETECTION & WARNING OVERLAY                  */
-/* ========================================================= */
-function checkAdBlocker() {
-  let ad = document.createElement('div');
-  ad.className = 'adsbox';
-  ad.style.height = '1px';
-  ad.style.position = 'absolute';
-  ad.style.top = '-1000px';
-  document.body.appendChild(ad);
+/* ================== UNIVERSAL ADBLOCK DETECTION ================== */
+function detectUniversalAdBlock() {
+  let adDetected = false;
 
-  window.setTimeout(() => {
-    if (ad.offsetHeight === 0) {
-      // AdBlocker detected
-      showAdBlockWarning();
-    }
-    ad.remove();
-  }, 100);
+  // 1️⃣ Classic hidden element method
+  let adDiv = document.createElement('div');
+  adDiv.className = 'adsbox';
+  adDiv.style.height = '1px';
+  adDiv.style.position = 'absolute';
+  adDiv.style.top = '-1000px';
+  document.body.appendChild(adDiv);
+
+  if (adDiv.offsetHeight === 0) adDetected = true;
+  adDiv.remove();
+
+  // 2️⃣ Script-based method (Brave / Opera / advanced blockers)
+  const scriptCheck = new Promise((resolve) => {
+    const testScript = document.createElement('script');
+    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+    testScript.type = 'text/javascript';
+    testScript.async = true;
+    testScript.onload = () => resolve(false); // Script loaded, no block
+    testScript.onerror = () => resolve(true);  // Script blocked
+    document.body.appendChild(testScript);
+  });
+
+  // 3️⃣ Inline bait detection (catch aggressive blockers)
+  const bait = document.createElement('div');
+  bait.innerHTML = '&nbsp;';
+  bait.className = 'adsbox bait';
+  bait.style.position = 'absolute';
+  bait.style.height = '1px';
+  bait.style.width = '1px';
+  bait.style.top = '-9999px';
+  document.body.appendChild(bait);
+
+  if (getComputedStyle(bait).display === 'none' || getComputedStyle(bait).visibility === 'hidden') adDetected = true;
+  bait.remove();
+
+  // Combine results
+  scriptCheck.then((blocked) => {
+    if (blocked || adDetected) showAdBlockWarning();
+  });
 }
 
 function showAdBlockWarning() {
@@ -32,22 +57,16 @@ function showAdBlockWarning() {
   overlay.innerHTML = `
     <div class="adblock-container">
       <h2>⚠️ AdBlocker Detected</h2>
-      <p>We noticed you are using an ad blocker. To access downloads, please disable your ad blocker.</p>
-      <button id="retryAdCheck" 
-        style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Retry Check</button>
+      <p>We noticed you are using an ad blocker. To access downloads, please disable your ad blocker and refresh the page.</p>
+      <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
     </div>
   `;
   document.body.appendChild(overlay);
-
-  const retryBtn = document.getElementById("retryAdCheck");
-  retryBtn.addEventListener("click", () => {
-    overlay.remove();
-    checkAdBlocker();
-  });
 }
 
-// Run check on page load
-window.addEventListener('load', checkAdBlocker);
+// Run detection on page load
+window.addEventListener('load', detectUniversalAdBlock);
+
 
 /* ========================================================= */
 /* ✅ FETCH & DISPLAY MOVIES (EXISTING CODE, UNTOUCHED)     */
