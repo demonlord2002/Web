@@ -6,6 +6,52 @@ let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
+/* ========================================================= */
+/* ✅ AD BLOCK DETECTION & WARNING OVERLAY                  */
+/* ========================================================= */
+function checkAdBlocker() {
+  let ad = document.createElement('div');
+  ad.className = 'adsbox';
+  ad.style.height = '1px';
+  ad.style.position = 'absolute';
+  ad.style.top = '-1000px';
+  document.body.appendChild(ad);
+
+  window.setTimeout(() => {
+    if (ad.offsetHeight === 0) {
+      // AdBlocker detected
+      showAdBlockWarning();
+    }
+    ad.remove();
+  }, 100);
+}
+
+function showAdBlockWarning() {
+  const overlay = document.createElement('div');
+  overlay.className = 'adblock-overlay';
+  overlay.innerHTML = `
+    <div class="adblock-container">
+      <h2>⚠️ AdBlocker Detected</h2>
+      <p>We noticed you are using an ad blocker. To access downloads, please disable your ad blocker.</p>
+      <button id="retryAdCheck" 
+        style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Retry Check</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const retryBtn = document.getElementById("retryAdCheck");
+  retryBtn.addEventListener("click", () => {
+    overlay.remove();
+    checkAdBlocker();
+  });
+}
+
+// Run check on page load
+window.addEventListener('load', checkAdBlocker);
+
+/* ========================================================= */
+/* ✅ FETCH & DISPLAY MOVIES (EXISTING CODE, UNTOUCHED)     */
+/* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
