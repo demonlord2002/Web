@@ -37,7 +37,7 @@ function displayMovies() {
               <p>📥 ${q.label} →
                 <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
                 <span class="timer-text" style="display:none;"></span>
-                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
+                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
             `
             )
@@ -89,9 +89,9 @@ function displayFiltered(list) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Generate Link</button>
+                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
                 <span class="timer-text" style="display:none;"></span>
-                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
+                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
             `
             )
@@ -105,7 +105,7 @@ function displayFiltered(list) {
 }
 
 /* ========================================================= */
-/* ✅ FULLSCREEN SMART-LINK AD + REAL 18s WAIT DETECTION     */
+/* ✅ FULLSCREEN SMART-LINK AD + 18s VALID WAIT LOGIC       */
 /* ========================================================= */
 function showAdAndStartTimer(url, btn) {
   const overlay = document.createElement("div");
@@ -117,61 +117,52 @@ function showAdAndStartTimer(url, btn) {
          target="_blank" class="ad-download-btn"
          style="display:inline-block; background:#ff003c; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; box-shadow:0 0 15px #ff003c; transition:all 0.3s ease;">Download Now</a>
       <p class="tap-text">Click the red button to open the ad. Stay 18s on that page!</p>
+      <p class="countdown-text" style="display:none;">⏳ Waiting: 18s</p>
     </div>
   `;
   document.body.appendChild(overlay);
 
   const adButton = overlay.querySelector(".ad-download-btn");
   const tapText = overlay.querySelector(".tap-text");
+  const countdownText = overlay.querySelector(".countdown-text");
 
-  let adOpened = false;
+  let timerStarted = false;
   let adStartTime = 0;
+  let interval;
 
   adButton.addEventListener("click", () => {
-    adButton.style.background = "#ffd700";
-    adButton.style.boxShadow = "0 0 25px #ffd700";
+    if (timerStarted) return; // prevent double click
+    timerStarted = true;
 
-    adOpened = true;
     adStartTime = Date.now();
-    window.open(
-      "https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe",
-      "_blank"
-    );
-    tapText.textContent = "✅ Ad opened. Please stay 18s there before returning.";
+    tapText.style.display = "none";
+    countdownText.style.display = "block";
+
+    // Open the ad in a new tab
+    window.open(adButton.href, "_blank");
+
+    // Update countdown every second
+    interval = setInterval(() => {
+      const elapsed = (Date.now() - adStartTime) / 1000;
+      const remaining = Math.ceil(18 - elapsed);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        overlay.remove();
+        showFinalButton(btn);
+      } else {
+        countdownText.textContent = `⏳ Please stay on the ad page. Time left: ${remaining}s`;
+      }
+    }, 1000);
   });
 
-  // Detect when user comes back to site
+  // Prevent timer from starting if user comes back before clicking
   window.addEventListener("focus", function onReturn() {
-    if (!adOpened) return;
-
-    const elapsed = (Date.now() - adStartTime) / 1000;
-    const remaining = 18 - elapsed;
-
-    if (remaining <= 0) {
-      overlay.remove();
-      showFinalButton(btn);
-      window.removeEventListener("focus", onReturn);
-    } else {
-      tapText.textContent = `⏳ You stayed ${Math.floor(
-        elapsed
-      )}s, please wait ${Math.ceil(
-        remaining
-      )}s more on ad page before returning.`;
-      // Keep checking until user really waits 18s
-      const interval = setInterval(() => {
-        const newElapsed = (Date.now() - adStartTime) / 1000;
-        if (newElapsed >= 18) {
-          clearInterval(interval);
-          overlay.remove();
-          showFinalButton(btn);
-          window.removeEventListener("focus", onReturn);
-        }
-      }, 1000);
-    }
+    if (!timerStarted) return;
   });
 }
 
-/* ✅ Show green "Click Here" button after ad wait */
+/* ✅ Show final download button after 18s */
 function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
