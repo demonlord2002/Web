@@ -6,12 +6,12 @@ let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
-/* ================== UNIVERSAL ADBLOCK DETECTION ================== */
-function detectUniversalAdBlock() {
+/* ================== ADVANCED ADBLOCK + BRAVE DETECTION ================== */
+function detectAdBlockerAdvanced() {
   let adDetected = false;
 
-  // 1️⃣ Classic hidden element method
-  let adDiv = document.createElement('div');
+  // 1️⃣ Classic hidden div detection
+  const adDiv = document.createElement('div');
   adDiv.className = 'adsbox';
   adDiv.style.height = '1px';
   adDiv.style.position = 'absolute';
@@ -21,51 +21,72 @@ function detectUniversalAdBlock() {
   if (adDiv.offsetHeight === 0) adDetected = true;
   adDiv.remove();
 
-  // 2️⃣ Script-based method (Brave / Opera / advanced blockers)
-  const scriptCheck = new Promise((resolve) => {
-    const testScript = document.createElement('script');
-    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-    testScript.type = 'text/javascript';
-    testScript.async = true;
-    testScript.onload = () => resolve(false); // Script loaded, no block
-    testScript.onerror = () => resolve(true);  // Script blocked
-    document.body.appendChild(testScript);
-  });
-
-  // 3️⃣ Inline bait detection (catch aggressive blockers)
+  // 2️⃣ Bait div detection (aggressive blockers)
   const bait = document.createElement('div');
-  bait.innerHTML = '&nbsp;';
   bait.className = 'adsbox bait';
-  bait.style.position = 'absolute';
-  bait.style.height = '1px';
   bait.style.width = '1px';
+  bait.style.height = '1px';
+  bait.style.position = 'absolute';
   bait.style.top = '-9999px';
   document.body.appendChild(bait);
 
-  if (getComputedStyle(bait).display === 'none' || getComputedStyle(bait).visibility === 'hidden') adDetected = true;
+  const baitStyle = getComputedStyle(bait);
+  if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
   bait.remove();
 
+  // 3️⃣ Script blocking detection (Brave + uBlock + AdGuard)
+  const scriptCheck = new Promise((resolve) => {
+    const testScript = document.createElement('script');
+    testScript.type = 'text/javascript';
+    testScript.async = true;
+    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+    let called = false;
+    testScript.onerror = () => {
+      if (!called) { called = true; resolve(true); } // Script blocked
+    };
+    testScript.onload = () => {
+      if (!called) { called = true; resolve(false); } // Script loaded
+    };
+
+    document.head.appendChild(testScript);
+  });
+
+  // 4️⃣ Brave-specific detection (navigator properties)
+  const braveCheck = new Promise((resolve) => {
+    if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+      navigator.brave.isBrave().then((isBrave) => {
+        resolve(isBrave); // true if Brave
+      });
+    } else {
+      resolve(false);
+    }
+  });
+
   // Combine results
-  scriptCheck.then((blocked) => {
-    if (blocked || adDetected) showAdBlockWarning();
+  Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
+    if (adDetected || scriptBlocked || isBrave) {
+      showAdBlockWarningAdvanced();
+    }
   });
 }
 
-function showAdBlockWarning() {
+function showAdBlockWarningAdvanced() {
   const overlay = document.createElement('div');
   overlay.className = 'adblock-overlay';
   overlay.innerHTML = `
     <div class="adblock-container">
-      <h2>⚠️ AdBlocker Detected</h2>
-      <p>We noticed you are using an ad blocker. To access downloads, please disable your ad blocker and refresh the page.</p>
+      <h2>⚠️ AdBlocker or Brave Detected</h2>
+      <p>We noticed you are using an ad blocker or Brave browser. To access downloads, please disable the ad blocker or use a standard browser, then refresh the page.</p>
       <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
     </div>
   `;
   document.body.appendChild(overlay);
 }
 
-// Run detection on page load
-window.addEventListener('load', detectUniversalAdBlock);
+// Run advanced detection on page load
+window.addEventListener('load', detectAdBlockerAdvanced);
+
 
 
 /* ========================================================= */
