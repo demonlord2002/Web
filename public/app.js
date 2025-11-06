@@ -35,7 +35,7 @@ function displayMovies() {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Generate Link</button>
+                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
                 <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Click Here</a>
               </p>
