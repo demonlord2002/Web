@@ -90,10 +90,45 @@
       max-width: 400px;
       width: 90%;
       text-align: center;
-      cursor: pointer;
     }
+
+    /* Circular Timer */
+    .timer-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 15px auto;
+    }
+    .timer-circle svg {
+      transform: rotate(-90deg);
+      width: 120px;
+      height: 120px;
+    }
+    .timer-circle circle {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+    }
+    .timer-bg {
+      stroke: rgba(255,255,255,0.2);
+    }
+    .timer-progress {
+      stroke: #ff3c78;
+      stroke-dasharray: 377;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .timer-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #ff99cc;
+      font-weight: 600;
+    }
+
     #timerText {
-      margin-top: 12px;
+      margin-top: 8px;
       color: #ff99cc;
       font-size: 16px;
     }
@@ -182,40 +217,40 @@
         <script async="async" data-cfasync="false" src="//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js"></script>
         <div id="container-ea5f5730b58a527b1a36d686e5d2fbf3"></div>
       </div>
-      <p id="timerText">👉 Tap the ad to start countdown</p>
+
+      <!-- Circular Timer -->
+      <div class="timer-circle">
+        <svg>
+          <circle class="timer-bg" cx="60" cy="60" r="60"></circle>
+          <circle class="timer-progress" cx="60" cy="60" r="60"></circle>
+        </svg>
+        <div class="timer-text" id="sec">15</div>
+      </div>
+
+      <p id="timerText">⏳ Please wait...</p>
       <button id="closeAd">Continue to Site</button>
     </div>
   </div>
 
   <script>
     const interstitial = document.getElementById("interstitialAd");
-    const adBox = document.getElementById("adBox");
-    const timerText = document.getElementById("timerText");
     const closeAd = document.getElementById("closeAd");
-
-    let adClicked = false;
+    const timerProgress = document.querySelector(".timer-progress");
+    const sec = document.getElementById("sec");
+    const timerText = document.getElementById("timerText");
     let seconds = 15;
-    let interval;
+    const totalDash = 377;
 
-    adBox.addEventListener("click", (e) => {
-      if (adClicked) return;
-      adClicked = true;
-
-      // ⏩ Allow ad to open naturally
-      const adLink = adBox.querySelector("a[href]");
-      if (adLink) {
-        const adUrl = adLink.getAttribute("href");
-        window.open(adUrl, "_blank");
-      }
-
-      timerText.innerHTML = `Please wait <span id="sec">${seconds}</span> seconds...`;
-      const span = document.getElementById("sec");
-
-      interval = setInterval(() => {
-        seconds--;
-        span.textContent = seconds;
-        if (seconds <= 0) {
+    window.addEventListener("load", () => {
+      let remaining = seconds;
+      const interval = setInterval(() => {
+        remaining--;
+        sec.textContent = remaining;
+        const offset = totalDash - (remaining / seconds) * totalDash;
+        timerProgress.style.strokeDashoffset = offset;
+        if (remaining <= 0) {
           clearInterval(interval);
+          sec.textContent = "0";
           timerText.textContent = "You can now continue!";
           closeAd.style.display = "inline-block";
         }
@@ -227,13 +262,10 @@
       setTimeout(() => interstitial.remove(), 500);
     });
 
-    // Safety auto-remove
     setTimeout(() => {
-      if (!adClicked) {
-        interstitial.style.opacity = "0";
-        setTimeout(() => interstitial.remove(), 500);
-      }
-    }, 40000);
+      interstitial.style.opacity = "0";
+      setTimeout(() => interstitial.remove(), 500);
+    }, 30000);
   </script>
 </body>
 </html>
