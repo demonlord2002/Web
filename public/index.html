@@ -14,11 +14,13 @@
       margin: 0;
       padding: 0;
     }
+
     header { padding: 20px; }
     h1 {
       color: #ff3c78;
       text-shadow: 0 0 15px #ff3c78;
     }
+
     #searchBar {
       width: 80%;
       padding: 10px;
@@ -30,7 +32,13 @@
       background: #111;
       color: white;
       box-shadow: 0 0 10px #ff3c78;
+      transition: 0.3s;
     }
+
+    #searchBar:focus {
+      box-shadow: 0 0 15px #ff8800;
+    }
+
     .highlight-note {
       background: linear-gradient(90deg, #ff0055, #ff8800);
       color: #fff;
@@ -82,6 +90,7 @@
       text-align: center;
       transition: opacity 0.5s ease;
     }
+
     #adBox {
       background: #111;
       border-radius: 20px;
@@ -92,46 +101,37 @@
       text-align: center;
     }
 
-    /* Circular Timer */
-    .timer-circle {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      margin: 15px auto;
-    }
-    .timer-circle svg {
-      transform: rotate(-90deg);
-      width: 120px;
-      height: 120px;
-    }
-    .timer-circle circle {
-      fill: none;
-      stroke-width: 10;
-      stroke-linecap: round;
-    }
-    .timer-bg {
-      stroke: rgba(255,255,255,0.2);
-    }
-    .timer-progress {
-      stroke: #ff3c78;
-      stroke-dasharray: 377;
-      stroke-dashoffset: 0;
-      transition: stroke-dashoffset 1s linear;
-    }
-    .timer-text {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      color: #ff99cc;
+    #timerText {
+      margin-top: 12px;
+      color: #ffcc00;
+      font-size: 16px;
       font-weight: 600;
     }
 
-    #timerText {
-      margin-top: 8px;
-      color: #ff99cc;
-      font-size: 16px;
+    /* Animated yellow line under timer */
+    .progress-line {
+      margin-top: 10px;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #222;
+      overflow: hidden;
+      position: relative;
     }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ffcc00, #ffee00);
+      width: 100%;
+      transform-origin: left;
+      animation: progressCount linear forwards;
+    }
+
+    @keyframes progressCount {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
     #closeAd {
       margin-top: 15px;
       padding: 10px 25px;
@@ -142,6 +142,13 @@
       font-weight: bold;
       cursor: pointer;
       display: none;
+      box-shadow: 0 0 10px #00ff66;
+      transition: 0.3s;
+    }
+
+    #closeAd:hover {
+      background: #66ff99;
+      transform: scale(1.05);
     }
   </style>
 
@@ -161,7 +168,7 @@
         const current = window.location.href.replace(/^https?:\/\//, '');
         const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
         btn.addEventListener("click",()=>window.location.href=chromeIntent);
-        setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2500);
+        setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2000);
       }
     });
   </script>
@@ -172,14 +179,13 @@
     <h1>🎬 My Complete Movie Collection 🎬</h1>
     <p>Use the search bar below to find any movie quickly.</p>
     <input type="text" id="searchBar" placeholder="🔎 Search movies..." />
-    
-    <!-- ✅ Updated Chrome-only notice -->
+
     <div class="highlight-note">
       ⚠️ <strong>IMPORTANT NOTICE:</strong><br>
       This website can only be accessed through the <strong>Google Chrome</strong> browser.<br>
       <a href="https://youtu.be/dazmt81IiZ4?si=laYPuxgrTMXn7Yhd" target="_blank">How to open in Chrome → Click Here</a>
     </div>
-    
+
     <p class="note">
       Please go to the Play Store and install the <strong>Google Chrome</strong> app before downloading.
     </p>
@@ -188,7 +194,7 @@
   <main id="movieContainer"></main>
   <div class="pagination" id="pagination"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 
   <!-- 💰 Adstraa pop-up + social bar -->
   <script async src='//pl27968563.effectivegatecpm.com/db/06/62/db0662d7b91402fccda37f93a2b02503.js'></script>
@@ -214,44 +220,34 @@
   <div id="interstitialAd">
     <div id="adBox">
       <div id="nativeAdContainer">
-        <script async="async" data-cfasync="false" src="//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js"></script>
+        <script async src="//pl27968658.effectivegatecpm.com/ea5f5730b58a527b1a36d686e5d2fbf3/invoke.js"></script>
         <div id="container-ea5f5730b58a527b1a36d686e5d2fbf3"></div>
       </div>
-
-      <!-- Circular Timer -->
-      <div class="timer-circle">
-        <svg>
-          <circle class="timer-bg" cx="60" cy="60" r="60"></circle>
-          <circle class="timer-progress" cx="60" cy="60" r="60"></circle>
-        </svg>
-        <div class="timer-text" id="sec">15</div>
-      </div>
-
-      <p id="timerText">⏳ Please wait...</p>
+      <p id="timerText">⏳ Please wait <span id="sec">15</span> seconds...</p>
+      <div class="progress-line"><div class="progress-bar" id="progressBar"></div></div>
       <button id="closeAd">Continue to Site</button>
     </div>
   </div>
 
   <script>
     const interstitial = document.getElementById("interstitialAd");
-    const closeAd = document.getElementById("closeAd");
-    const timerProgress = document.querySelector(".timer-progress");
-    const sec = document.getElementById("sec");
     const timerText = document.getElementById("timerText");
+    const closeAd = document.getElementById("closeAd");
+    const sec = document.getElementById("sec");
+    const progressBar = document.getElementById("progressBar");
     let seconds = 15;
-    const totalDash = 377;
 
+    // Optimize countdown animation
     window.addEventListener("load", () => {
-      let remaining = seconds;
-      const interval = setInterval(() => {
-        remaining--;
-        sec.textContent = remaining;
-        const offset = totalDash - (remaining / seconds) * totalDash;
-        timerProgress.style.strokeDashoffset = offset;
-        if (remaining <= 0) {
-          clearInterval(interval);
-          sec.textContent = "0";
-          timerText.textContent = "You can now continue!";
+      progressBar.style.animationDuration = seconds + "s";
+      progressBar.style.animationName = "progressCount";
+
+      const countdown = setInterval(() => {
+        seconds--;
+        sec.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(countdown);
+          timerText.textContent = "✅ You can now continue!";
           closeAd.style.display = "inline-block";
         }
       }, 1000);
