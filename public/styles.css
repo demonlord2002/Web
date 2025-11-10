@@ -415,3 +415,75 @@ h1 {
 .adblock-container button:hover {
   transform: scale(1.05);
 }
+
+/* ========================================================= */
+/* === NETFLIX-STYLE "MOST DOWNLOADED" SECTION ============= */
+/* ========================================================= */
+.top-movies-section {
+  margin: 25px 0 40px;
+  overflow: hidden;
+}
+
+.top-movies-section h2 {
+  color: #ff3c78;
+  text-align: left;
+  padding-left: 20px;
+  text-shadow: 0 0 15px #ff3c78;
+}
+
+.top-movie-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  scroll-behavior: smooth;
+  padding: 10px 15px;
+}
+
+.top-movie-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.top-card {
+  position: relative;
+  min-width: 160px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  background: #111;
+}
+
+.top-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 0, 100, 0.5);
+}
+
+.top-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.top-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  padding: 10px;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.top-overlay h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.top-overlay p {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #ffcc00;
+}
