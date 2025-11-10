@@ -15,10 +15,7 @@
     }
 
     header { padding: 20px; text-align: center; }
-    h1 {
-      color: #ff3c78;
-      text-shadow: 0 0 15px #ff3c78;
-    }
+    h1 { color: #ff3c78; text-shadow: 0 0 15px #ff3c78; }
 
     #searchBar {
       width: 80%;
@@ -33,9 +30,7 @@
       box-shadow: 0 0 10px #ff3c78;
       transition: 0.3s;
     }
-    #searchBar:focus {
-      box-shadow: 0 0 15px #ff8800;
-    }
+    #searchBar:focus { box-shadow: 0 0 15px #ff8800; }
 
     .highlight-note {
       background: linear-gradient(90deg, #ff0055, #ff8800);
@@ -47,21 +42,13 @@
       font-weight: bold;
       animation: blink 1.5s infinite;
     }
-    .highlight-note a {
-      color: #fff;
-      text-decoration: underline;
-      font-weight: 700;
-    }
+    .highlight-note a { color: #fff; text-decoration: underline; font-weight: 700; }
     .highlight-note a:hover { color: #ffe600; }
     @keyframes blink { 0%,100%{opacity:1;}50%{opacity:0.6;} }
     .note { margin-top: 10px; color: #ccc; font-size: 14px; }
 
     /* ================== TOP DOWNLOADS SLIDER ================== */
-    #topDownloadsContainer {
-      position: relative;
-      margin: 25px 0;
-    }
-
+    #topDownloadsContainer { position: relative; margin: 25px 0; }
     #topDownloads {
       display: flex;
       overflow-x: auto;
@@ -69,7 +56,6 @@
       padding: 10px 0;
       scroll-behavior: smooth;
     }
-
     #topDownloads::-webkit-scrollbar { display: none; }
 
     .top-movie-card {
@@ -82,30 +68,14 @@
       cursor: pointer;
       text-align: center;
     }
-
     .top-movie-card:hover {
       transform: scale(1.1);
       box-shadow: 0 0 35px rgba(255,0,60,0.7);
     }
+    .top-movie-card img { width: 100%; border-radius: 10px; }
+    .top-movie-card h3 { font-size: 0.95rem; color: #ff99cc; margin: 5px 0; }
+    .top-movie-card p { font-size: 0.85rem; color: #ffcc99; margin-bottom: 8px; }
 
-    .top-movie-card img {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .top-movie-card h3 {
-      font-size: 0.95rem;
-      color: #ff99cc;
-      margin: 5px 0;
-    }
-
-    .top-movie-card p {
-      font-size: 0.85rem;
-      color: #ffcc99;
-      margin-bottom: 8px;
-    }
-
-    /* Optional arrows */
     .slider-arrow {
       position: absolute;
       top: 50%;
@@ -123,9 +93,7 @@
       z-index: 10;
       transition: 0.3s;
     }
-
     .slider-arrow:hover { background: rgba(255,0,60,0.7); }
-
     #arrowLeft { left: 0; }
     #arrowRight { right: 0; }
 
@@ -166,27 +134,6 @@
     }
     #closeAd:hover { background:#66ff99; transform:scale(1.05); }
   </style>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const ua = navigator.userAgent || '';
-      const isInAppBrowser = /Instagram|FB_IAB|FBAN|FBAV|Telegram|Line|Snapchat|TikTok/i.test(ua);
-      if (isInAppBrowser) {
-        document.body.innerHTML = `
-          <div class="redirect-body">
-            <h2>🚀 For best experience</h2>
-            <p>Open this page in Chrome for smooth movie access.</p>
-            <button id="openInChromeBtn" style="margin-top:20px;background:#00bfff;color:white;border:none;border-radius:30px;padding:12px 28px;font-size:16px;font-weight:600;cursor:pointer;">Open in Chrome</button>
-          </div>
-        `;
-        const btn = document.getElementById("openInChromeBtn");
-        const current = window.location.href.replace(/^https?:\/\//, '');
-        const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
-        btn.addEventListener("click",()=>window.location.href=chromeIntent);
-        setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2000);
-      }
-    });
-  </script>
 </head>
 
 <body>
@@ -217,23 +164,57 @@
   <main id="movieContainer"></main>
   <div class="pagination" id="pagination"></div>
 
-  <script src="app.js" defer></script>
+  <script>
+    // Redirect for in-app browsers
+    document.addEventListener("DOMContentLoaded", () => {
+      const ua = navigator.userAgent || '';
+      const isInAppBrowser = /Instagram|FB_IAB|FBAN|FBAV|Telegram|Line|Snapchat|TikTok/i.test(ua);
+      if (isInAppBrowser) {
+        document.body.innerHTML = `
+          <div class="redirect-body">
+            <h2>🚀 For best experience</h2>
+            <p>Open this page in Chrome for smooth movie access.</p>
+            <button id="openInChromeBtn" style="margin-top:20px;background:#00bfff;color:white;border:none;border-radius:30px;padding:12px 28px;font-size:16px;font-weight:600;cursor:pointer;">Open in Chrome</button>
+          </div>
+        `;
+        const btn = document.getElementById("openInChromeBtn");
+        const current = window.location.href.replace(/^https?:\/\//, '');
+        const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
+        btn.addEventListener("click",()=>window.location.href=chromeIntent);
+        setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2000);
+      }
+    });
 
-  <!-- Ads scripts remain same -->
+    // ====== Top Downloads Auto Update ======
+    const topDownloads = document.getElementById("topDownloads");
+    async function fetchTopDownloads() {
+      try {
+        const res = await fetch("/api/top-downloads");
+        const movies = await res.json();
+        topDownloads.innerHTML = "";
+        movies.forEach(movie => {
+          const card = document.createElement("div");
+          card.className = "top-movie-card";
+          card.innerHTML = `
+            <img src="${movie.image}" alt="${movie.title}" />
+            <h3>${movie.title}</h3>
+            <p>Downloads: ${movie.downloadCount}</p>
+          `;
+          topDownloads.appendChild(card);
+        });
+      } catch(err) { console.error("Failed to fetch top downloads:", err); }
+    }
+
+    fetchTopDownloads();
+    setInterval(fetchTopDownloads, 30000); // refresh every 30s
+
+    // Slider arrows
+    const arrowLeft = document.getElementById("arrowLeft");
+    const arrowRight = document.getElementById("arrowRight");
+    arrowLeft.addEventListener("click", () => topDownloads.scrollBy({ left: -300, behavior: "smooth" }));
+    arrowRight.addEventListener("click", () => topDownloads.scrollBy({ left: 300, behavior: "smooth" }));
+  </script>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
-
-<script>
-  // Slider arrow functionality
-  const topDownloads = document.getElementById("topDownloads");
-  const arrowLeft = document.getElementById("arrowLeft");
-  const arrowRight = document.getElementById("arrowRight");
-
-  arrowLeft.addEventListener("click", () => {
-    topDownloads.scrollBy({ left: -300, behavior: "smooth" });
-  });
-
-  arrowRight.addEventListener("click", () => {
-    topDownloads.scrollBy({ left: 300, behavior: "smooth" });
-  });
-</script>
