@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
+app.use(express.json()); // Needed for POST requests
 
 const MOVIES_PATH = path.join(__dirname, "movies.json");
 
@@ -24,18 +24,17 @@ app.get("/api/movies", (req, res) => {
 });
 
 /* ============================================================
-   🎬 FETCH TOP DOWNLOADED MOVIES
+   🎬 FETCH TOP DOWNLOADED MOVIES (NEW FEATURE)
    ============================================================ */
 app.get("/api/top-movies", (req, res) => {
   fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
-
     try {
       let movies = JSON.parse(data);
 
       // Sort by downloads (highest first)
       const topMovies = movies
-        .map(m => ({ ...m, downloads: m.downloads || 0 })) // ensure field exists
+        .map(m => ({ ...m, downloads: m.downloads || 0 })) // ensure downloads field exists
         .sort((a, b) => b.downloads - a.downloads)
         .slice(0, 10);
 
@@ -47,7 +46,7 @@ app.get("/api/top-movies", (req, res) => {
 });
 
 /* ============================================================
-   📈 AUTO-INCREMENT DOWNLOAD COUNT
+   📈 INCREMENT DOWNLOAD COUNT (OPTIONAL)
    ============================================================ */
 app.post("/api/increment-download", (req, res) => {
   const { title } = req.body;
@@ -55,7 +54,6 @@ app.post("/api/increment-download", (req, res) => {
 
   fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
-
     try {
       let movies = JSON.parse(data);
       const movie = movies.find(m => m.title === title);
@@ -75,7 +73,7 @@ app.post("/api/increment-download", (req, res) => {
 });
 
 /* ============================================================
-   🚀 SERVER START
+   🚀 START SERVER
    ============================================================ */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
