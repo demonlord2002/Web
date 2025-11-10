@@ -6,49 +6,76 @@ const path = require("path");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Fetch all movies
+const MOVIES_PATH = path.join(__dirname, "movies.json");
+
+/* ============================================================
+   ✅ FETCH ALL MOVIES
+   ============================================================ */
 app.get("/api/movies", (req, res) => {
-  fs.readFile(path.join(__dirname, "movies.json"), "utf-8", (err, data) => {
+  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
-    res.json(JSON.parse(data));
+    try {
+      const movies = JSON.parse(data);
+      res.json(movies);
+    } catch {
+      res.status(500).json({ error: "Invalid movies.json format" });
+    }
   });
 });
 
-// ✅ Fetch top downloaded movies (Netflix-style section)
+/* ============================================================
+   🎬 FETCH TOP DOWNLOADED MOVIES
+   ============================================================ */
 app.get("/api/top-movies", (req, res) => {
-  fs.readFile(path.join(__dirname, "movies.json"), "utf-8", (err, data) => {
+  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
 
-    let movies = JSON.parse(data);
+    try {
+      let movies = JSON.parse(data);
 
-    // Sort by downloads (highest first)
-    const topMovies = movies
-      .filter(m => typeof m.downloads === "number") // only those with a downloads field
-      .sort((a, b) => b.downloads - a.downloads)
-      .slice(0, 10); // top 10 movies
+      // Sort by downloads (highest first)
+      const topMovies = movies
+        .map(m => ({ ...m, downloads: m.downloads || 0 })) // ensure field exists
+        .sort((a, b) => b.downloads - a.downloads)
+        .slice(0, 10);
 
-    res.json(topMovies);
+      res.json(topMovies);
+    } catch {
+      res.status(500).json({ error: "Invalid movies.json format" });
+    }
   });
 });
 
-// ✅ Optional: Auto-increase download count when a user visits a movie link
+/* ============================================================
+   📈 AUTO-INCREMENT DOWNLOAD COUNT
+   ============================================================ */
 app.post("/api/increment-download", (req, res) => {
   const { title } = req.body;
-  const filePath = path.join(__dirname, "movies.json");
+  if (!title) return res.status(400).json({ error: "Missing title" });
 
-  fs.readFile(filePath, "utf-8", (err, data) => {
+  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
 
-    let movies = JSON.parse(data);
-    const movie = movies.find(m => m.title === title);
-    if (movie) movie.downloads = (movie.downloads || 0) + 1;
+    try {
+      let movies = JSON.parse(data);
+      const movie = movies.find(m => m.title === title);
 
-    fs.writeFile(filePath, JSON.stringify(movies, null, 2), err => {
-      if (err) return res.status(500).json({ error: "Error writing movies.json" });
-      res.json({ success: true, newCount: movie.downloads });
-    });
+      if (!movie) return res.status(404).json({ error: "Movie not found" });
+
+      movie.downloads = (movie.downloads || 0) + 1;
+
+      fs.writeFile(MOVIES_PATH, JSON.stringify(movies, null, 2), err => {
+        if (err) return res.status(500).json({ error: "Error writing movies.json" });
+        res.json({ success: true, title, newCount: movie.downloads });
+      });
+    } catch {
+      res.status(500).json({ error: "Invalid movies.json format" });
+    }
   });
 });
 
+/* ============================================================
+   🚀 SERVER START
+   ============================================================ */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
