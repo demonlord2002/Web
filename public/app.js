@@ -1,6 +1,7 @@
 const container = document.getElementById("movieContainer");
 const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
+const topContainer = document.getElementById("topDownloads"); // 🔥 Added for Top Downloads
 
 let movies = [];
 let currentPage = 1;
@@ -10,18 +11,15 @@ const moviesPerPage = 10;
 function detectAdBlockerAdvanced() {
   let adDetected = false;
 
-  // 1️⃣ Classic hidden div detection
   const adDiv = document.createElement('div');
   adDiv.className = 'adsbox';
   adDiv.style.height = '1px';
   adDiv.style.position = 'absolute';
   adDiv.style.top = '-1000px';
   document.body.appendChild(adDiv);
-
   if (adDiv.offsetHeight === 0) adDetected = true;
   adDiv.remove();
 
-  // 2️⃣ Bait div detection (aggressive blockers)
   const bait = document.createElement('div');
   bait.className = 'adsbox bait';
   bait.style.width = '1px';
@@ -29,45 +27,33 @@ function detectAdBlockerAdvanced() {
   bait.style.position = 'absolute';
   bait.style.top = '-9999px';
   document.body.appendChild(bait);
-
   const baitStyle = getComputedStyle(bait);
   if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
   bait.remove();
 
-  // 3️⃣ Script blocking detection (Brave + uBlock + AdGuard)
   const scriptCheck = new Promise((resolve) => {
     const testScript = document.createElement('script');
     testScript.type = 'text/javascript';
     testScript.async = true;
     testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-
     let called = false;
     testScript.onerror = () => {
-      if (!called) { called = true; resolve(true); } // Script blocked
+      if (!called) { called = true; resolve(true); }
     };
     testScript.onload = () => {
-      if (!called) { called = true; resolve(false); } // Script loaded
+      if (!called) { called = true; resolve(false); }
     };
-
     document.head.appendChild(testScript);
   });
 
-  // 4️⃣ Brave-specific detection (navigator properties)
   const braveCheck = new Promise((resolve) => {
     if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
-      navigator.brave.isBrave().then((isBrave) => {
-        resolve(isBrave); // true if Brave
-      });
-    } else {
-      resolve(false);
-    }
+      navigator.brave.isBrave().then((isBrave) => resolve(isBrave));
+    } else resolve(false);
   });
 
-  // Combine results
   Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
-    if (adDetected || scriptBlocked || isBrave) {
-      showAdBlockWarningAdvanced();
-    }
+    if (adDetected || scriptBlocked || isBrave) showAdBlockWarningAdvanced();
   });
 }
 
@@ -77,29 +63,24 @@ function showAdBlockWarningAdvanced() {
   overlay.innerHTML = `
     <div class="adblock-container">
       <h2>⚠️ AdBlocker or Brave Detected</h2>
-      <p>We noticed you are using an ad blocker or Brave browser. To access downloads, please disable the ad blocker or use a standard browser, then refresh the page.</p>
+      <p>We noticed you are using an ad blocker or Brave browser. To access downloads, please disable it or use a standard browser, then refresh the page.</p>
       <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
     </div>
   `;
   document.body.appendChild(overlay);
 }
 
-// Run advanced detection on page load
 window.addEventListener('load', detectAdBlockerAdvanced);
 
-
-
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (EXISTING CODE, UNTOUCHED)     */
+/* ✅ FETCH & DISPLAY MOVIES                                 */
 /* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
-
-  // ✅ Show latest uploads first
-  movies.reverse();
-
+  movies.reverse(); // latest first
   displayMovies();
+  fetchTopDownloads(); // 🔥 Also load Top Downloads on start
 }
 
 function displayMovies() {
@@ -121,7 +102,7 @@ function displayMovies() {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
                 <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
@@ -140,7 +121,6 @@ function displayMovies() {
 function setupPagination() {
   pagination.innerHTML = "";
   const pageCount = Math.ceil(movies.length / moviesPerPage);
-
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
@@ -153,6 +133,9 @@ function setupPagination() {
   }
 }
 
+/* ========================================================= */
+/* 🔍 SEARCH BAR LOGIC                                       */
+/* ========================================================= */
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
   const filtered = movies.filter((movie) =>
@@ -175,7 +158,7 @@ function displayFiltered(list) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
                 <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
@@ -191,9 +174,9 @@ function displayFiltered(list) {
 }
 
 /* ========================================================= */
-/* ✅ FULLSCREEN SMART-LINK AD + 18s VALID WAIT LOGIC       */
+/* ✅ FULLSCREEN SMART-LINK AD + 18s VALID WAIT LOGIC        */
 /* ========================================================= */
-function showAdAndStartTimer(url, btn) {
+async function showAdAndStartTimer(url, btn, title) {
   const overlay = document.createElement("div");
   overlay.className = "fullscreen-ad-overlay";
   overlay.innerHTML = `
@@ -216,18 +199,23 @@ function showAdAndStartTimer(url, btn) {
   let adStartTime = 0;
   let interval;
 
-  adButton.addEventListener("click", () => {
-    if (timerStarted) return; // prevent double click
+  adButton.addEventListener("click", async () => {
+    if (timerStarted) return;
     timerStarted = true;
 
     adStartTime = Date.now();
     tapText.style.display = "none";
     countdownText.style.display = "block";
 
-    // Open the ad in a new tab
     window.open(adButton.href, "_blank");
 
-    // Update countdown every second
+    // 🔥 Increment download count in MongoDB
+    await fetch("/api/increment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+
     interval = setInterval(() => {
       const elapsed = (Date.now() - adStartTime) / 1000;
       const remaining = Math.ceil(18 - elapsed);
@@ -236,15 +224,11 @@ function showAdAndStartTimer(url, btn) {
         clearInterval(interval);
         overlay.remove();
         showFinalButton(btn);
+        fetchTopDownloads(); // 🔥 Refresh Top Downloads
       } else {
         countdownText.textContent = `⏳ Please stay on the ad page. Time left: ${remaining}s`;
       }
     }, 1000);
-  });
-
-  // Prevent timer from starting if user comes back before clicking
-  window.addEventListener("focus", function onReturn() {
-    if (!timerStarted) return;
   });
 }
 
@@ -253,9 +237,34 @@ function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
   const finalLink = timerEl.nextElementSibling;
-
   finalLink.style.display = "inline-block";
   finalLink.classList.add("show-download");
+}
+
+/* ========================================================= */
+/* 🎬 TOP DOWNLOADS SECTION                                  */
+/* ========================================================= */
+async function fetchTopDownloads() {
+  try {
+    const res = await fetch("/api/top-downloads");
+    const topMovies = await res.json();
+
+    if (!topContainer) return;
+
+    topContainer.innerHTML = "";
+    topMovies.forEach((movie) => {
+      const card = document.createElement("div");
+      card.classList.add("top-movie-card");
+      card.innerHTML = `
+        <img src="${movie.image}" alt="${movie.title}" class="top-movie-img" />
+        <h3>${movie.title}</h3>
+        <p>📈 ${movie.downloadCount || 0} downloads</p>
+      `;
+      topContainer.appendChild(card);
+    });
+  } catch (err) {
+    console.error("Error fetching top downloads:", err);
+  }
 }
 
 /* ✅ Load all movies */
