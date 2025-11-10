@@ -74,7 +74,7 @@ window.addEventListener('load', detectAdBlockerAdvanced);
 
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (OLD LOGIC)                     */
+/* ✅ FETCH & DISPLAY MOVIES (OLD LOGIC + TOP DOWNLOADS)    */
 /* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
@@ -103,7 +103,7 @@ function displayMovies() {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+                <button class="download-btn" data-title="${movie.title}" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
                 <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
@@ -155,7 +155,7 @@ function displayFiltered(list) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+                <button class="download-btn" data-title="${movie.title}" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
                 <span class="timer-text" style="display:none;"></span>
                 <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
               </p>
@@ -230,16 +230,21 @@ function showFinalButton(btn) {
   finalLink.classList.add("show-download");
 }
 
+
 /* ========================================================= */
 /* 🎬 NETFLIX-STYLE TOP DOWNLOADED MOVIES FEATURE           */
 /* ========================================================= */
 async function loadTopMovies() {
   if (!topContainer) return;
   try {
-    const res = await fetch("/api/top-movies");
+    const res = await fetch("/api/movies"); // auto-sort top downloads in server
     const topMovies = await res.json();
 
+    // sort by downloads descending
+    topMovies.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+
     topContainer.innerHTML = topMovies
+      .slice(0, 10)
       .map(
         (movie) => `
         <div class="top-card" onclick="scrollToMovie('${movie.title}')">
@@ -278,6 +283,8 @@ async function incrementDownload(title) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     });
+    // refresh top movies after increment
+    loadTopMovies();
   } catch (err) {
     console.warn("Download increment failed:", err);
   }
