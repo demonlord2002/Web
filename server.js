@@ -50,10 +50,10 @@ fs.readFile(path.join(__dirname, "movies.json"), "utf-8", async (err, data) => {
 
 // ====== API ROUTES ======
 
-// Get all movies
+// Get all movies (newest first)
 app.get("/api/movies", async (req, res) => {
   try {
-    const movies = await Movie.find().sort({ title: 1 });
+    const movies = await Movie.find().sort({ _id: -1 }); // newest first
     res.json(movies);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch movies" });
