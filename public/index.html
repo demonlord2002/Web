@@ -108,7 +108,6 @@
       font-weight: 600;
     }
 
-    /* Animated yellow line under timer */
     .progress-line {
       margin-top: 10px;
       width: 100%;
@@ -150,6 +149,67 @@
       background: #66ff99;
       transform: scale(1.05);
     }
+
+    /* ================== Netflix-style Top Movies ================== */
+    .top-movies-section {
+      margin: 25px 0;
+      overflow: hidden;
+    }
+
+    .top-movie-carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 15px;
+      scroll-behavior: smooth;
+      padding: 10px 15px;
+    }
+
+    .top-movie-carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .top-card {
+      position: relative;
+      min-width: 160px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .top-card:hover {
+      transform: scale(1.08);
+    }
+
+    .top-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .top-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+      padding: 10px;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    .top-overlay h3 {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .top-overlay p {
+      margin: 4px 0 0;
+      font-size: 0.8rem;
+      color: #ffcc00;
+    }
   </style>
 
   <script>
@@ -190,6 +250,12 @@
       Please go to the Play Store and install the <strong>Google Chrome</strong> app before downloading.
     </p>
   </header>
+
+  <!-- ✅ Netflix-style Top Downloaded Section -->
+  <section class="top-movies-section">
+    <h2 style="color:#ff3c78;text-align:left;padding-left:20px;">🔥 Most Downloaded</h2>
+    <div id="topMoviesContainer" class="top-movie-carousel"></div>
+  </section>
 
   <main id="movieContainer"></main>
   <div class="pagination" id="pagination"></div>
@@ -237,7 +303,6 @@
     const progressBar = document.getElementById("progressBar");
     let seconds = 15;
 
-    // Optimize countdown animation
     window.addEventListener("load", () => {
       progressBar.style.animationDuration = seconds + "s";
       progressBar.style.animationName = "progressCount";
