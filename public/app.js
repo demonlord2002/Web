@@ -1,54 +1,57 @@
+/* ========================================================= */
+/* =================== ELEMENT SELECTORS ================== */
+/* ========================================================= */
 const container = document.getElementById("movieContainer");
 const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
-const topContainer = document.getElementById("topDownloads"); // 🔥 Added for Top Downloads
+const topContainer = document.getElementById("topDownloads"); // Top Downloads Section
 
 let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
-/* ================== ADVANCED ADBLOCK + BRAVE DETECTION ================== */
+/* ========================================================= */
+/* =============== ADVANCED ADBLOCK DETECTION ============= */
+/* ========================================================= */
 function detectAdBlockerAdvanced() {
   let adDetected = false;
 
-  const adDiv = document.createElement('div');
-  adDiv.className = 'adsbox';
-  adDiv.style.height = '1px';
-  adDiv.style.position = 'absolute';
-  adDiv.style.top = '-1000px';
+  // Classic hidden div
+  const adDiv = document.createElement("div");
+  adDiv.className = "adsbox";
+  adDiv.style.height = "1px";
+  adDiv.style.position = "absolute";
+  adDiv.style.top = "-1000px";
   document.body.appendChild(adDiv);
   if (adDiv.offsetHeight === 0) adDetected = true;
   adDiv.remove();
 
-  const bait = document.createElement('div');
-  bait.className = 'adsbox bait';
-  bait.style.width = '1px';
-  bait.style.height = '1px';
-  bait.style.position = 'absolute';
-  bait.style.top = '-9999px';
+  // Bait div
+  const bait = document.createElement("div");
+  bait.className = "adsbox bait";
+  bait.style.width = "1px";
+  bait.style.height = "1px";
+  bait.style.position = "absolute";
+  bait.style.top = "-9999px";
   document.body.appendChild(bait);
   const baitStyle = getComputedStyle(bait);
-  if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
+  if (baitStyle.display === "none" || baitStyle.visibility === "hidden") adDetected = true;
   bait.remove();
 
+  // Script blocking detection
   const scriptCheck = new Promise((resolve) => {
-    const testScript = document.createElement('script');
-    testScript.type = 'text/javascript';
-    testScript.async = true;
-    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+    const testScript = document.createElement("script");
+    testScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
     let called = false;
-    testScript.onerror = () => {
-      if (!called) { called = true; resolve(true); }
-    };
-    testScript.onload = () => {
-      if (!called) { called = true; resolve(false); }
-    };
+    testScript.onerror = () => { if (!called) { called = true; resolve(true); } };
+    testScript.onload = () => { if (!called) { called = true; resolve(false); } };
     document.head.appendChild(testScript);
   });
 
+  // Brave detection
   const braveCheck = new Promise((resolve) => {
-    if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
-      navigator.brave.isBrave().then((isBrave) => resolve(isBrave));
+    if (navigator.brave && typeof navigator.brave.isBrave === "function") {
+      navigator.brave.isBrave().then(resolve);
     } else resolve(false);
   });
 
@@ -58,8 +61,8 @@ function detectAdBlockerAdvanced() {
 }
 
 function showAdBlockWarningAdvanced() {
-  const overlay = document.createElement('div');
-  overlay.className = 'adblock-overlay';
+  const overlay = document.createElement("div");
+  overlay.className = "adblock-overlay";
   overlay.innerHTML = `
     <div class="adblock-container">
       <h2>⚠️ AdBlocker or Brave Detected</h2>
@@ -70,17 +73,21 @@ function showAdBlockWarningAdvanced() {
   document.body.appendChild(overlay);
 }
 
-window.addEventListener('load', detectAdBlockerAdvanced);
+window.addEventListener("load", detectAdBlockerAdvanced);
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES                                 */
+/* ===================== FETCH & DISPLAY ================== */
 /* ========================================================= */
 async function fetchMovies() {
-  const res = await fetch("/api/movies");
-  movies = await res.json();
-  movies.reverse(); // latest first
-  displayMovies();
-  fetchTopDownloads(); // 🔥 Also load Top Downloads on start
+  try {
+    const res = await fetch("/api/movies");
+    movies = await res.json();
+    movies.reverse(); // latest first
+    displayMovies();
+    fetchTopDownloads(); // load top downloads on page load
+  } catch (err) {
+    console.error("Error fetching movies:", err);
+  }
 }
 
 function displayMovies() {
@@ -92,23 +99,17 @@ function displayMovies() {
   visibleMovies.forEach((movie) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
-
     card.innerHTML = `
       <div class="movie-row">
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
         <div class="movie-info">
           <h2>${movie.title}</h2>
-          ${movie.qualities
-            .map(
-              (q) => `
-              <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
-                <span class="timer-text" style="display:none;"></span>
-                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
-              </p>
-            `
-            )
-            .join("")}
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
+              <span class="timer-text" style="display:none;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
+            </p>`).join("")}
         </div>
       </div>
     `;
@@ -124,17 +125,14 @@ function setupPagination() {
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
-    btn.onclick = () => {
-      currentPage = i;
-      displayMovies();
-    };
+    btn.onclick = () => { currentPage = i; displayMovies(); };
     if (i === currentPage) btn.style.background = "#ff003c";
     pagination.appendChild(btn);
   }
 }
 
 /* ========================================================= */
-/* 🔍 SEARCH BAR LOGIC                                       */
+/* ===================== SEARCH BAR ======================= */
 /* ========================================================= */
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
@@ -154,17 +152,12 @@ function displayFiltered(list) {
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
         <div class="movie-info">
           <h2>${movie.title}</h2>
-          ${movie.qualities
-            .map(
-              (q) => `
-              <p>📥 ${q.label} →
-                <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
-                <span class="timer-text" style="display:none;"></span>
-                <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
-              </p>
-            `
-            )
-            .join("")}
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this, '${movie.title.replace(/'/g, "\\'")}')">Download</button>
+              <span class="timer-text" style="display:none;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
+            </p>`).join("")}
         </div>
       </div>
     `;
@@ -174,7 +167,7 @@ function displayFiltered(list) {
 }
 
 /* ========================================================= */
-/* ✅ FULLSCREEN SMART-LINK AD + 18s VALID WAIT LOGIC        */
+/* ===================== DOWNLOAD LOGIC =================== */
 /* ========================================================= */
 async function showAdAndStartTimer(url, btn, title) {
   const overlay = document.createElement("div");
@@ -209,7 +202,7 @@ async function showAdAndStartTimer(url, btn, title) {
 
     window.open(adButton.href, "_blank");
 
-    // 🔥 Increment download count in MongoDB
+    // Increment download count in backend
     await fetch("/api/increment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -224,7 +217,7 @@ async function showAdAndStartTimer(url, btn, title) {
         clearInterval(interval);
         overlay.remove();
         showFinalButton(btn);
-        fetchTopDownloads(); // 🔥 Refresh Top Downloads
+        fetchTopDownloads(); // refresh top downloads after increment
       } else {
         countdownText.textContent = `⏳ Please stay on the ad page. Time left: ${remaining}s`;
       }
@@ -232,7 +225,6 @@ async function showAdAndStartTimer(url, btn, title) {
   });
 }
 
-/* ✅ Show final download button after 18s */
 function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
@@ -242,17 +234,16 @@ function showFinalButton(btn) {
 }
 
 /* ========================================================= */
-/* 🎬 TOP DOWNLOADS SECTION                                  */
+/* ===================== TOP DOWNLOADS ===================== */
 /* ========================================================= */
 async function fetchTopDownloads() {
+  if (!topContainer) return;
   try {
     const res = await fetch("/api/top-downloads");
     const topMovies = await res.json();
 
-    if (!topContainer) return;
-
     topContainer.innerHTML = "";
-    topMovies.forEach((movie) => {
+    topMovies.forEach(movie => {
       const card = document.createElement("div");
       card.classList.add("top-movie-card");
       card.innerHTML = `
@@ -267,5 +258,7 @@ async function fetchTopDownloads() {
   }
 }
 
-/* ✅ Load all movies */
+/* ========================================================= */
+/* ===================== INITIAL LOAD ===================== */
+/* ========================================================= */
 fetchMovies();
