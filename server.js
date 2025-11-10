@@ -16,6 +16,12 @@ app.get("/api/movies", (req, res) => {
     if (err) return res.status(500).json({ error: "Error reading movies.json" });
     try {
       const movies = JSON.parse(data);
+
+      // Ensure downloads field exists for all movies
+      movies.forEach(m => {
+        if (typeof m.downloads !== "number") m.downloads = 0;
+      });
+
       res.json(movies);
     } catch {
       res.status(500).json({ error: "Invalid movies.json format" });
@@ -24,7 +30,7 @@ app.get("/api/movies", (req, res) => {
 });
 
 /* ============================================================
-   🎬 FETCH TOP DOWNLOADED MOVIES (NEW FEATURE)
+   🎬 FETCH TOP DOWNLOADED MOVIES
    ============================================================ */
 app.get("/api/top-movies", (req, res) => {
   fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
@@ -32,9 +38,13 @@ app.get("/api/top-movies", (req, res) => {
     try {
       let movies = JSON.parse(data);
 
-      // Sort by downloads (highest first)
+      // Ensure downloads field exists
+      movies.forEach(m => {
+        if (typeof m.downloads !== "number") m.downloads = 0;
+      });
+
+      // Sort by downloads descending and get top 10
       const topMovies = movies
-        .map(m => ({ ...m, downloads: m.downloads || 0 })) // ensure downloads field exists
         .sort((a, b) => b.downloads - a.downloads)
         .slice(0, 10);
 
@@ -46,7 +56,7 @@ app.get("/api/top-movies", (req, res) => {
 });
 
 /* ============================================================
-   📈 INCREMENT DOWNLOAD COUNT (OPTIONAL)
+   📈 INCREMENT DOWNLOAD COUNT
    ============================================================ */
 app.post("/api/increment-download", (req, res) => {
   const { title } = req.body;
@@ -64,6 +74,8 @@ app.post("/api/increment-download", (req, res) => {
 
       fs.writeFile(MOVIES_PATH, JSON.stringify(movies, null, 2), err => {
         if (err) return res.status(500).json({ error: "Error writing movies.json" });
+
+        // Return updated download count
         res.json({ success: true, title, newCount: movie.downloads });
       });
     } catch {
