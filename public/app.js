@@ -68,7 +68,6 @@ function showAdBlockWarningAdvanced() {
 
 window.addEventListener('load', detectAdBlockerAdvanced);
 
-
 /* ========================================================= */
 /* ✅ FETCH & DISPLAY MOVIES (MONGODB READY)                */
 /* ========================================================= */
@@ -78,7 +77,7 @@ async function fetchMovies() {
     movies = await res.json();
     movies.reverse(); // latest uploads first
     displayMovies();
-    loadTopMovies();
+    loadTopMovies(); // Load top movies after fetching
   } catch (err) {
     console.error("Error fetching movies from MongoDB:", err);
   }
@@ -170,7 +169,6 @@ function displayFiltered(list) {
   pagination.innerHTML = "";
 }
 
-
 /* ========================================================= */
 /* ✅ FULLSCREEN SMART-LINK AD + 18s TIMER                   */
 /* ========================================================= */
@@ -230,14 +228,13 @@ function showFinalButton(btn) {
   finalLink.classList.add("show-download");
 }
 
-
 /* ========================================================= */
 /* 🎬 NETFLIX-STYLE TOP DOWNLOADED MOVIES FEATURE           */
 /* ========================================================= */
 async function loadTopMovies() {
   if (!topContainer) return;
   try {
-    const res = await fetch("/api/top-movies"); // Use top-movies endpoint from server.js
+    const res = await fetch("/api/top-movies"); // MongoDB top-movies endpoint
     const topMovies = await res.json();
 
     topContainer.innerHTML = topMovies
