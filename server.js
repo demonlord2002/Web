@@ -15,10 +15,13 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://drdoom2003p:drdoom2003
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+})
+.then(() => console.log("✅ MongoDB Connected"))
+.catch((err) => console.error("❌ MongoDB connection error:", err));
 
+// ====== Movie Schema ======
 const movieSchema = new mongoose.Schema({
-  title: String,
+  title: { type: String, required: true, unique: true },
   image: String,
   qualities: Array,
   downloadCount: { type: Number, default: 0 },
@@ -26,43 +29,64 @@ const movieSchema = new mongoose.Schema({
 
 const Movie = mongoose.model("Movie", movieSchema);
 
-// ====== Load movies.json initially if MongoDB empty ======
+// ====== Load movies.json initially if MongoDB is empty ======
 fs.readFile(path.join(__dirname, "movies.json"), "utf-8", async (err, data) => {
-  if (err) return console.log("Error reading movies.json");
+  if (err) return console.log("❌ Error reading movies.json");
 
-  const movies = JSON.parse(data);
-  const count = await Movie.countDocuments();
-  if (count === 0) {
-    await Movie.insertMany(movies);
-    console.log("Movies imported into MongoDB");
+  try {
+    const movies = JSON.parse(data);
+    const count = await Movie.countDocuments();
+    if (count === 0) {
+      await Movie.insertMany(movies);
+      console.log("✅ Movies imported into MongoDB");
+    } else {
+      console.log("ℹ️ Movies already exist in MongoDB, skipping import");
+    }
+  } catch (error) {
+    console.error("❌ Error parsing/inserting movies.json:", error);
   }
 });
 
-// ====== Get all movies ======
+// ====== API ROUTES ======
+
+// Get all movies
 app.get("/api/movies", async (req, res) => {
-  const movies = await Movie.find().sort({ title: 1 }); // sorted by title or latest first
-  res.json(movies);
+  try {
+    const movies = await Movie.find().sort({ title: 1 }); // you can change to latest first: { _id: -1 }
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch movies" });
+  }
 });
 
-// ====== Increment download count ======
+// Increment download count
 app.post("/api/increment", async (req, res) => {
   const { title } = req.body;
   if (!title) return res.status(400).json({ error: "Title missing" });
 
-  const movie = await Movie.findOne({ title });
-  if (!movie) return res.status(404).json({ error: "Movie not found" });
+  try {
+    const movie = await Movie.findOne({ title });
+    if (!movie) return res.status(404).json({ error: "Movie not found" });
 
-  movie.downloadCount += 1;
-  await movie.save();
+    movie.downloadCount += 1;
+    await movie.save();
 
-  res.json({ success: true, downloadCount: movie.downloadCount });
+    res.json({ success: true, downloadCount: movie.downloadCount });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to increment download count" });
+  }
 });
 
-// ====== Top downloads ======
+// Get top downloads
 app.get("/api/top-downloads", async (req, res) => {
-  const topMovies = await Movie.find().sort({ downloadCount: -1 }).limit(10);
-  res.json(topMovies);
+  try {
+    const topMovies = await Movie.find().sort({ downloadCount: -1 }).limit(10);
+    res.json(topMovies);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch top downloads" });
+  }
 });
 
+// ====== Start Server ======
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
