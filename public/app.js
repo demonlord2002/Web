@@ -1,11 +1,8 @@
 const container = document.getElementById("movieContainer");
 const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
-const topContainer = document.getElementById("topMoviesContainer");
 
-let movies = [
-  // Paste your full JSON movie data here
-];
+let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
@@ -13,6 +10,7 @@ const moviesPerPage = 10;
 function detectAdBlockerAdvanced() {
   let adDetected = false;
 
+  // 1️⃣ Classic hidden div detection
   const adDiv = document.createElement('div');
   adDiv.className = 'adsbox';
   adDiv.style.height = '1px';
@@ -22,6 +20,7 @@ function detectAdBlockerAdvanced() {
   if (adDiv.offsetHeight === 0) adDetected = true;
   adDiv.remove();
 
+  // 2️⃣ Bait div detection
   const bait = document.createElement('div');
   bait.className = 'adsbox bait';
   bait.style.width = '1px';
@@ -33,6 +32,7 @@ function detectAdBlockerAdvanced() {
   if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
   bait.remove();
 
+  // 3️⃣ Script blocking detection
   const scriptCheck = new Promise((resolve) => {
     const testScript = document.createElement('script');
     testScript.type = 'text/javascript';
@@ -44,6 +44,7 @@ function detectAdBlockerAdvanced() {
     document.head.appendChild(testScript);
   });
 
+  // 4️⃣ Brave detection
   const braveCheck = new Promise((resolve) => {
     if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
       navigator.brave.isBrave().then(resolve);
@@ -71,70 +72,94 @@ function showAdBlockWarningAdvanced() {
 window.addEventListener('load', detectAdBlockerAdvanced);
 
 /* ========================================================= */
-/* ✅ DISPLAY MOVIES + PAGINATION + SEARCH                  */
+/* ✅ FETCH & DISPLAY MOVIES (TOP / LATEST LOGIC)           */
 /* ========================================================= */
-function displayMovies(filteredList = null) {
-  const list = filteredList || movies;
+async function fetchMovies() {
+  const res = await fetch("/api/movies");
+  movies = await res.json();
+
+  // Latest uploads first
+  movies.reverse();
+  displayMovies();
+}
+
+function displayMovies() {
   const start = (currentPage - 1) * moviesPerPage;
   const end = start + moviesPerPage;
-  const visibleMovies = list.slice(start, end);
-
+  const visibleMovies = movies.slice(start, end);
   container.innerHTML = "";
 
   visibleMovies.forEach((movie) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
 
-    const links = movie.qualities
-      .map(q => `
-        <p>📥 ${q.label} →
-          <button class="download-btn" data-title="${movie.title}" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
-          <span class="timer-text" style="display:none;"></span>
-          <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
-        </p>
-      `).join("");
-
     card.innerHTML = `
-      <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
-      <div class="movie-info">
-        <h2>${movie.title}</h2>
-        ${links}
+      <div class="movie-row">
+        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+              <span class="timer-text" style="display:none;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
+            </p>
+          `).join('')}
+        </div>
       </div>
     `;
-
     container.appendChild(card);
   });
 
-  setupPagination(list);
-  loadTopMovies();
+  setupPagination();
 }
 
-function setupPagination(list = null) {
-  const paginatedList = list || movies;
-  const pageCount = Math.ceil(paginatedList.length / moviesPerPage);
+function setupPagination() {
   pagination.innerHTML = "";
-
+  const pageCount = Math.ceil(movies.length / moviesPerPage);
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
+    btn.onclick = () => { currentPage = i; displayMovies(); };
     if (i === currentPage) btn.style.background = "#ff003c";
-    btn.addEventListener("click", () => {
-      currentPage = i;
-      displayMovies(paginatedList);
-    });
     pagination.appendChild(btn);
   }
 }
 
+/* ================= SEARCH FUNCTIONALITY ================= */
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
-  const filtered = movies.filter(movie => movie.title.toLowerCase().includes(term));
-  currentPage = 1;
-  displayMovies(filtered);
+  const filtered = movies.filter((movie) => movie.title.toLowerCase().includes(term));
+  displayFiltered(filtered);
 });
 
+function displayFiltered(list) {
+  container.innerHTML = "";
+  list.forEach((movie) => {
+    const card = document.createElement("div");
+    card.classList.add("movie-card");
+    card.innerHTML = `
+      <div class="movie-row">
+        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${movie.qualities.map(q => `
+            <p>📥 ${q.label} →
+              <button class="download-btn" onclick="showAdAndStartTimer('${q.url}', this)">Download</button>
+              <span class="timer-text" style="display:none;"></span>
+              <a href="${q.url}" class="final-download-btn" target="_blank" style="display:none;">Download Now</a>
+            </p>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+  pagination.innerHTML = "";
+}
+
 /* ========================================================= */
-/* ✅ FULLSCREEN SMART-LINK AD + TIMER                        */
+/* ✅ FULLSCREEN SMART-LINK AD + 18s WAIT TIMER             */
 /* ========================================================= */
 function showAdAndStartTimer(url, btn) {
   const overlay = document.createElement("div");
@@ -142,7 +167,8 @@ function showAdAndStartTimer(url, btn) {
   overlay.innerHTML = `
     <div class="ad-container">
       <h2>Advertisement</h2>
-      <a href="${url}" target="_blank" class="ad-download-btn"
+      <a href="https://www.effectivegatecpm.com/r88d38mj?key=774f077c3d6adc3bc3d33fffe27a66fe"
+         target="_blank" class="ad-download-btn"
          style="display:inline-block; background:#ff003c; color:white; padding:10px 20px; border-radius:25px; text-decoration:none; box-shadow:0 0 15px #ff003c; transition:all 0.3s ease;">Download Now</a>
       <p class="tap-text">Click the red button to open the ad. Stay 18s on that page!</p>
       <p class="countdown-text" style="display:none;">⏳ Waiting: 18s</p>
@@ -171,7 +197,6 @@ function showAdAndStartTimer(url, btn) {
     interval = setInterval(() => {
       const elapsed = (Date.now() - adStartTime) / 1000;
       const remaining = Math.ceil(18 - elapsed);
-
       if (remaining <= 0) {
         clearInterval(interval);
         overlay.remove();
@@ -187,63 +212,10 @@ function showFinalButton(btn) {
   btn.style.display = "none";
   const timerEl = btn.nextElementSibling;
   const finalLink = timerEl.nextElementSibling;
+
   finalLink.style.display = "inline-block";
   finalLink.classList.add("show-download");
 }
 
-/* ========================================================= */
-/* 🎬 NETFLIX-STYLE TOP DOWNLOADED MOVIES                   */
-/* ========================================================= */
-function loadTopMovies() {
-  if (!topContainer) return;
-
-  const topMovies = [...movies]
-    .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
-    .slice(0, 10);
-
-  topContainer.innerHTML = topMovies
-    .map(movie => `
-      <div class="top-card" onclick="scrollToMovie('${movie.title}')">
-        <img src="${movie.image}" alt="${movie.title}">
-        <div class="top-overlay">
-          <h3>${movie.title}</h3>
-          <p>🔥 ${movie.downloads || 0} Downloads</p>
-        </div>
-      </div>
-    `).join("");
-}
-
-function scrollToMovie(title) {
-  const movieCards = document.querySelectorAll(".movie-card h2");
-  for (const h2 of movieCards) {
-    if (h2.textContent.trim() === title.trim()) {
-      h2.scrollIntoView({ behavior: "smooth", block: "center" });
-      h2.style.color = "#ff003c";
-      setTimeout(() => (h2.style.color = ""), 2000);
-      break;
-    }
-  }
-}
-
-/* ========================================================= */
-/* 🔁 AUTO-INCREMENT DOWNLOAD COUNT                          */
-/* ========================================================= */
-function incrementDownload(title) {
-  const movie = movies.find(m => m.title === title);
-  if (movie) {
-    movie.downloads = (movie.downloads || 0) + 1;
-    loadTopMovies();
-  }
-}
-
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("final-download-btn")) {
-    const movieTitle = e.target.closest(".movie-card")?.querySelector("h2")?.textContent;
-    if (movieTitle) incrementDownload(movieTitle);
-  }
-});
-
-/* ========================================================= */
-/* ✅ INITIALIZE PAGE                                        */
-/* ========================================================= */
-displayMovies();
+/* ================= LOAD MOVIES ================= */
+fetchMovies();
