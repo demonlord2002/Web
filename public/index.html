@@ -58,6 +58,43 @@
     @keyframes blink { 0%,100%{opacity:1;}50%{opacity:0.6;} }
     .note { margin-top: 10px; color: #ccc; font-size: 14px; }
 
+    /* Top Downloads Section */
+    #topDownloads {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin: 25px 0;
+    }
+    .top-movie-card {
+      background: #111;
+      padding: 10px;
+      border-radius: 15px;
+      width: 150px;
+      text-align: center;
+      box-shadow: 0 0 15px rgba(255,0,60,0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .top-movie-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255,0,60,0.6);
+    }
+    .top-movie-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .top-movie-card h3 {
+      font-size: 1rem;
+      color: #ff99cc;
+      margin: 5px 0;
+    }
+    .top-movie-card p {
+      font-size: 0.9rem;
+      color: #ffcc99;
+      margin: 0;
+    }
+
     /* Redirect Page */
     .redirect-body {
       background: radial-gradient(circle at center, #000, #0a0a0a);
@@ -108,7 +145,6 @@
       font-weight: 600;
     }
 
-    /* Animated yellow line under timer */
     .progress-line {
       margin-top: 10px;
       width: 100%;
@@ -189,6 +225,10 @@
     <p class="note">
       Please go to the Play Store and install the <strong>Google Chrome</strong> app before downloading.
     </p>
+
+    <!-- Top Downloads Section -->
+    <h2>🔥 Top Downloads</h2>
+    <div id="topDownloads"></div>
   </header>
 
   <main id="movieContainer"></main>
@@ -237,7 +277,6 @@
     const progressBar = document.getElementById("progressBar");
     let seconds = 15;
 
-    // Optimize countdown animation
     window.addEventListener("load", () => {
       progressBar.style.animationDuration = seconds + "s";
       progressBar.style.animationName = "progressCount";
