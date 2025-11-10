@@ -11,7 +11,6 @@ const moviesPerPage = 10;
 function detectAdBlockerAdvanced() {
   let adDetected = false;
 
-  // 1️⃣ Classic hidden div detection
   const adDiv = document.createElement('div');
   adDiv.className = 'adsbox';
   adDiv.style.height = '1px';
@@ -21,7 +20,6 @@ function detectAdBlockerAdvanced() {
   if (adDiv.offsetHeight === 0) adDetected = true;
   adDiv.remove();
 
-  // 2️⃣ Bait div detection
   const bait = document.createElement('div');
   bait.className = 'adsbox bait';
   bait.style.width = '1px';
@@ -33,7 +31,6 @@ function detectAdBlockerAdvanced() {
   if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
   bait.remove();
 
-  // 3️⃣ Script blocking detection
   const scriptCheck = new Promise((resolve) => {
     const testScript = document.createElement('script');
     testScript.type = 'text/javascript';
@@ -45,7 +42,6 @@ function detectAdBlockerAdvanced() {
     document.head.appendChild(testScript);
   });
 
-  // 4️⃣ Brave-specific detection
   const braveCheck = new Promise((resolve) => {
     if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
       navigator.brave.isBrave().then(resolve);
@@ -74,14 +70,18 @@ window.addEventListener('load', detectAdBlockerAdvanced);
 
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (OLD LOGIC + TOP DOWNLOADS)    */
+/* ✅ FETCH & DISPLAY MOVIES (MONGODB READY)                */
 /* ========================================================= */
 async function fetchMovies() {
-  const res = await fetch("/api/movies");
-  movies = await res.json();
-  movies.reverse(); // latest uploads first
-  displayMovies();
-  loadTopMovies(); // Load top movies after fetching all
+  try {
+    const res = await fetch("/api/movies");
+    movies = await res.json();
+    movies.reverse(); // latest uploads first
+    displayMovies();
+    loadTopMovies();
+  } catch (err) {
+    console.error("Error fetching movies from MongoDB:", err);
+  }
 }
 
 function displayMovies() {
@@ -237,11 +237,8 @@ function showFinalButton(btn) {
 async function loadTopMovies() {
   if (!topContainer) return;
   try {
-    const res = await fetch("/api/movies"); // auto-sort top downloads in server
+    const res = await fetch("/api/top-movies"); // Use top-movies endpoint from server.js
     const topMovies = await res.json();
-
-    // sort by downloads descending
-    topMovies.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
 
     topContainer.innerHTML = topMovies
       .slice(0, 10)
@@ -283,7 +280,6 @@ async function incrementDownload(title) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     });
-    // refresh top movies after increment
     loadTopMovies();
   } catch (err) {
     console.warn("Download increment failed:", err);
