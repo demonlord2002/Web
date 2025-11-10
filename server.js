@@ -1,87 +1,76 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
-const fs = require("fs");
-const path = require("path");
+app.use(express.json());
+app.use(express.static("public"));
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json()); // Needed for POST requests
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
 
-const MOVIES_PATH = path.join(__dirname, "movies.json");
+// Movie Schema
+const movieSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  image: String,
+  qualities: [
+    {
+      label: String,
+      url: String
+    }
+  ],
+  downloads: { type: Number, default: 0 }
+});
+
+const Movie = mongoose.model("Movie", movieSchema);
 
 /* ============================================================
    ✅ FETCH ALL MOVIES
    ============================================================ */
-app.get("/api/movies", (req, res) => {
-  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
-    if (err) return res.status(500).json({ error: "Error reading movies.json" });
-    try {
-      const movies = JSON.parse(data);
-
-      // Ensure downloads field exists for all movies
-      movies.forEach(m => {
-        if (typeof m.downloads !== "number") m.downloads = 0;
-      });
-
-      res.json(movies);
-    } catch {
-      res.status(500).json({ error: "Invalid movies.json format" });
-    }
-  });
+app.get("/api/movies", async (req, res) => {
+  try {
+    const movies = await Movie.find();
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching movies" });
+  }
 });
 
 /* ============================================================
    🎬 FETCH TOP DOWNLOADED MOVIES
    ============================================================ */
-app.get("/api/top-movies", (req, res) => {
-  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
-    if (err) return res.status(500).json({ error: "Error reading movies.json" });
-    try {
-      let movies = JSON.parse(data);
-
-      // Ensure downloads field exists
-      movies.forEach(m => {
-        if (typeof m.downloads !== "number") m.downloads = 0;
-      });
-
-      // Sort by downloads descending and get top 10
-      const topMovies = movies
-        .sort((a, b) => b.downloads - a.downloads)
-        .slice(0, 10);
-
-      res.json(topMovies);
-    } catch {
-      res.status(500).json({ error: "Invalid movies.json format" });
-    }
-  });
+app.get("/api/top-movies", async (req, res) => {
+  try {
+    const topMovies = await Movie.find().sort({ downloads: -1 }).limit(10);
+    res.json(topMovies);
+  } catch (err) {
+    res.status(500).json({ error: "Error fetching top movies" });
+  }
 });
 
 /* ============================================================
    📈 INCREMENT DOWNLOAD COUNT
    ============================================================ */
-app.post("/api/increment-download", (req, res) => {
+app.post("/api/increment-download", async (req, res) => {
   const { title } = req.body;
   if (!title) return res.status(400).json({ error: "Missing title" });
 
-  fs.readFile(MOVIES_PATH, "utf-8", (err, data) => {
-    if (err) return res.status(500).json({ error: "Error reading movies.json" });
-    try {
-      let movies = JSON.parse(data);
-      const movie = movies.find(m => m.title === title);
+  try {
+    const movie = await Movie.findOneAndUpdate(
+      { title },
+      { $inc: { downloads: 1 } },
+      { new: true, upsert: false }
+    );
 
-      if (!movie) return res.status(404).json({ error: "Movie not found" });
+    if (!movie) return res.status(404).json({ error: "Movie not found" });
 
-      movie.downloads = (movie.downloads || 0) + 1;
-
-      fs.writeFile(MOVIES_PATH, JSON.stringify(movies, null, 2), err => {
-        if (err) return res.status(500).json({ error: "Error writing movies.json" });
-
-        // Return updated download count
-        res.json({ success: true, title, newCount: movie.downloads });
-      });
-    } catch {
-      res.status(500).json({ error: "Invalid movies.json format" });
-    }
-  });
+    res.json({ success: true, title, newCount: movie.downloads });
+  } catch (err) {
+    res.status(500).json({ error: "Error updating downloads" });
+  }
 });
 
 /* ============================================================
