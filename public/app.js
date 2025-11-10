@@ -82,7 +82,7 @@ async function fetchMovies() {
   try {
     const res = await fetch("/api/movies");
     movies = await res.json();
-    movies.reverse(); // latest first
+    movies.reverse(); // ✅ latest movies first
     displayMovies();
     fetchTopDownloads(); // load top downloads on page load
   } catch (err) {
@@ -241,6 +241,9 @@ async function fetchTopDownloads() {
   try {
     const res = await fetch("/api/top-downloads");
     const topMovies = await res.json();
+
+    // Latest updates first
+    topMovies.reverse();
 
     topContainer.innerHTML = "";
     topMovies.forEach(movie => {
