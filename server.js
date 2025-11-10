@@ -1,11 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
+
 const app = express();
+
+// Middleware
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 // ----------------- MONGODB CONNECTION -----------------
-const MONGO_URI = "mongodb+srv://drdoom2003p:drdoom2003p@cluster0.fnhjrtn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://drdoom2003p:drdoom2003p@cluster0.fnhjrtn.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
@@ -29,21 +33,19 @@ const movieSchema = new mongoose.Schema({
 
 const Movie = mongoose.model("Movie", movieSchema);
 
-/* ============================================================
-   ✅ FETCH ALL MOVIES
-   ============================================================ */
+// ----------------- API ROUTES -----------------
+
+// GET all movies
 app.get("/api/movies", async (req, res) => {
   try {
-    const movies = await Movie.find().sort({ _id: -1 }); // latest uploads first
+    const movies = await Movie.find().sort({ _id: -1 });
     res.json(movies);
   } catch (err) {
     res.status(500).json({ error: "Error fetching movies" });
   }
 });
 
-/* ============================================================
-   🎬 FETCH TOP DOWNLOADED MOVIES
-   ============================================================ */
+// GET top 10 downloaded movies
 app.get("/api/top-movies", async (req, res) => {
   try {
     const topMovies = await Movie.find().sort({ downloads: -1 }).limit(10);
@@ -53,9 +55,7 @@ app.get("/api/top-movies", async (req, res) => {
   }
 });
 
-/* ============================================================
-   📈 INCREMENT DOWNLOAD COUNT
-   ============================================================ */
+// POST increment download count
 app.post("/api/increment-download", async (req, res) => {
   const { title } = req.body;
   if (!title) return res.status(400).json({ error: "Missing title" });
@@ -75,8 +75,11 @@ app.post("/api/increment-download", async (req, res) => {
   }
 });
 
-/* ============================================================
-   🚀 START SERVER
-   ============================================================ */
+// Fallback route for frontend
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ----------------- START SERVER -----------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
