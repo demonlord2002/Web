@@ -3,7 +3,9 @@ const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
 const topContainer = document.getElementById("topMoviesContainer");
 
-let movies = [];
+let movies = [
+  // Paste your entire JSON here directly
+];
 let currentPage = 1;
 const moviesPerPage = 10;
 
@@ -69,20 +71,8 @@ function showAdBlockWarningAdvanced() {
 window.addEventListener('load', detectAdBlockerAdvanced);
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (MONGODB READY)                */
+/* ✅ DISPLAY MOVIES (LOCAL JSON MOCK)                      */
 /* ========================================================= */
-async function fetchMovies() {
-  try {
-    const res = await fetch("/api/movies");
-    movies = await res.json();
-    movies.reverse(); // latest uploads first
-    displayMovies();
-    loadTopMovies(); // Load top movies after fetching
-  } catch (err) {
-    console.error("Error fetching movies from MongoDB:", err);
-  }
-}
-
 function displayMovies() {
   const start = (currentPage - 1) * moviesPerPage;
   const end = start + moviesPerPage;
@@ -116,6 +106,7 @@ function displayMovies() {
   });
 
   setupPagination();
+  loadTopMovies();
 }
 
 function setupPagination() {
@@ -231,16 +222,16 @@ function showFinalButton(btn) {
 /* ========================================================= */
 /* 🎬 NETFLIX-STYLE TOP DOWNLOADED MOVIES FEATURE           */
 /* ========================================================= */
-async function loadTopMovies() {
+function loadTopMovies() {
   if (!topContainer) return;
-  try {
-    const res = await fetch("/api/top-movies"); // MongoDB top-movies endpoint
-    const topMovies = await res.json();
 
-    topContainer.innerHTML = topMovies
-      .slice(0, 10)
-      .map(
-        (movie) => `
+  const topMovies = [...movies]
+    .sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
+    .slice(0, 10);
+
+  topContainer.innerHTML = topMovies
+    .map(
+      (movie) => `
         <div class="top-card" onclick="scrollToMovie('${movie.title}')">
           <img src="${movie.image}" alt="${movie.title}">
           <div class="top-overlay">
@@ -248,11 +239,8 @@ async function loadTopMovies() {
             <p>🔥 ${movie.downloads || 0} Downloads</p>
           </div>
         </div>`
-      )
-      .join("");
-  } catch (err) {
-    console.error("Error loading top movies:", err);
-  }
+    )
+    .join("");
 }
 
 function scrollToMovie(title) {
@@ -270,16 +258,11 @@ function scrollToMovie(title) {
 /* ========================================================= */
 /* 🔁 AUTO-INCREMENT DOWNLOAD COUNT ON FINAL DOWNLOAD CLICK */
 /* ========================================================= */
-async function incrementDownload(title) {
-  try {
-    await fetch("/api/increment-download", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
+function incrementDownload(title) {
+  const movie = movies.find((m) => m.title === title);
+  if (movie) {
+    movie.downloads = (movie.downloads || 0) + 1;
     loadTopMovies();
-  } catch (err) {
-    console.warn("Download increment failed:", err);
   }
 }
 
@@ -293,4 +276,4 @@ document.addEventListener("click", (e) => {
 /* ========================================================= */
 /* ✅ INITIALIZE PAGE                                        */
 /* ========================================================= */
-fetchMovies();
+displayMovies();
