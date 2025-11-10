@@ -4,15 +4,17 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
+// ----------------- MONGODB CONNECTION -----------------
+const MONGO_URI = "mongodb+srv://drdoom2003p:drdoom2003p@cluster0.fnhjrtn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log("MongoDB connected"))
 .catch(err => console.error("MongoDB connection error:", err));
 
-// Movie Schema
+// ----------------- MOVIE SCHEMA -----------------
 const movieSchema = new mongoose.Schema({
   title: { type: String, required: true },
   image: String,
@@ -32,7 +34,7 @@ const Movie = mongoose.model("Movie", movieSchema);
    ============================================================ */
 app.get("/api/movies", async (req, res) => {
   try {
-    const movies = await Movie.find();
+    const movies = await Movie.find().sort({ _id: -1 }); // latest uploads first
     res.json(movies);
   } catch (err) {
     res.status(500).json({ error: "Error fetching movies" });
@@ -62,7 +64,7 @@ app.post("/api/increment-download", async (req, res) => {
     const movie = await Movie.findOneAndUpdate(
       { title },
       { $inc: { downloads: 1 } },
-      { new: true, upsert: false }
+      { new: true }
     );
 
     if (!movie) return res.status(404).json({ error: "Movie not found" });
