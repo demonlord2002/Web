@@ -35,6 +35,10 @@ function displayMovies(list = movies) {
   visibleMovies.forEach((movie) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
+
+    // Unique key for this movie
+    const movieKey = movie.title.toLowerCase().trim();
+
     card.innerHTML = `
       <div class="movie-row">
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
@@ -45,7 +49,7 @@ function displayMovies(list = movies) {
               (q) => `
               <p>📥 ${q.label} →
                 <a href="${q.url}" class="download-btn" target="_blank"
-                   data-url="${q.url}">Download Now</a>
+                   data-movie="${movieKey}">Download Now</a>
               </p>`
             )
             .join("")}
@@ -128,16 +132,16 @@ searchBar.addEventListener("input", (e) => {
 
 /* ========================================================= */
 /* ✅ RED/GREEN GLOWING DOWNLOAD BUTTON ==================== */
-/* ✅ Stay Green even after Refresh (localStorage) ========= */
+/* ✅ Stay Green even after Refresh (localStorage per Movie) */
 /* ========================================================= */
 function styleDownloadButtons() {
-  const clickedSet =
-    new Set(JSON.parse(localStorage.getItem("clickedDownloads") || "[]"));
+  const clickedMovies =
+    new Set(JSON.parse(localStorage.getItem("clickedMovies") || "[]"));
 
   document.querySelectorAll(".download-btn").forEach((btn) => {
-    const url = btn.getAttribute("data-url");
+    const movieKey = btn.getAttribute("data-movie");
 
-    // Default red glowing style
+    // Default style setup
     btn.style.textDecoration = "none";
     btn.style.border = "none";
     btn.style.padding = "6px 16px";
@@ -146,39 +150,43 @@ function styleDownloadButtons() {
     btn.style.fontWeight = "600";
     btn.style.transition = "all 0.3s ease";
 
-    // Apply style depending on clicked or not
-    if (clickedSet.has(url)) {
+    // Apply correct style
+    if (clickedMovies.has(movieKey)) {
       setGreenStyle(btn);
     } else {
       setRedStyle(btn);
     }
 
-    // Hover effect
+    // Hover glow
     btn.addEventListener("mouseenter", () => {
       btn.style.transform = "scale(1.08)";
-      if (clickedSet.has(url)) {
+      if (clickedMovies.has(movieKey)) {
         btn.style.boxShadow = "0 0 20px rgba(0,255,120,1)";
       } else {
         btn.style.boxShadow = "0 0 20px rgba(255,0,90,1)";
       }
     });
+
     btn.addEventListener("mouseleave", () => {
       btn.style.transform = "scale(1)";
-      if (clickedSet.has(url)) {
+      if (clickedMovies.has(movieKey)) {
         btn.style.boxShadow = "0 0 12px rgba(0,255,120,0.8)";
       } else {
-        btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
+        btn.style.boxShadow = "0 0 10px rgba(255,0,60,0.7)";
       }
     });
 
-    // Click → turns green permanently
+    // Click event → turns green for all in same movie
     btn.addEventListener("click", () => {
-      clickedSet.add(url);
+      clickedMovies.add(movieKey);
       localStorage.setItem(
-        "clickedDownloads",
-        JSON.stringify(Array.from(clickedSet))
+        "clickedMovies",
+        JSON.stringify(Array.from(clickedMovies))
       );
-      setGreenStyle(btn);
+      // Update all buttons of this movie
+      document
+        .querySelectorAll(`[data-movie="${movieKey}"]`)
+        .forEach(setGreenStyle);
     });
   });
 }
