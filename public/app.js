@@ -126,7 +126,7 @@ searchBar.addEventListener("input", (e) => {
 fetchMovies();
 
 /* ========================================================= */
-/* ✅ DOWNLOAD BUTTON ANIMATION (Glowing Red)               */
+/* ✅ DOWNLOAD BUTTON ANIMATION (MATCH SITE DESIGN)         */
 /* ========================================================= */
 const style = document.createElement('style');
 style.innerHTML = `
@@ -140,7 +140,7 @@ style.innerHTML = `
   border-radius: 25px;
   cursor: pointer;
   font-weight: bold;
-  box-shadow: 0 0 10px #ff003c;
+  box-shadow: 0 0 10px #ff003c, 0 0 15px #ff3366;
   transition: all 0.3s ease;
   animation: glowRed 1.5s infinite alternate;
   text-decoration: none;
@@ -148,11 +148,11 @@ style.innerHTML = `
 
 .download-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px #ff3366;
+  box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
 }
 
 @keyframes glowRed {
-  0% { box-shadow: 0 0 10px #ff003c, 0 0 20px #ff3366; }
+  0% { box-shadow: 0 0 10px #ff003c, 0 0 15px #ff3366; }
   50% { box-shadow: 0 0 15px #ff003c, 0 0 25px #ff3366; }
   100% { box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366; }
 }
