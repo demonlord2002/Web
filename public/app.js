@@ -13,15 +13,90 @@ let filteredMovies = [];
 let isSearching = false;
 
 /* ========================================================= */
-/* ===================== FETCH & DISPLAY ================== */
+/* ✅ ADVANCED ADBLOCK + BRAVE DETECTION =================== */
+/* ========================================================= */
+function detectAdBlockerAdvanced() {
+  let adDetected = false;
+
+  const adDiv = document.createElement("div");
+  adDiv.className = "adsbox";
+  adDiv.style.height = "1px";
+  adDiv.style.position = "absolute";
+  adDiv.style.top = "-1000px";
+  document.body.appendChild(adDiv);
+  if (adDiv.offsetHeight === 0) adDetected = true;
+  adDiv.remove();
+
+  const bait = document.createElement("div");
+  bait.className = "adsbox bait";
+  bait.style.width = "1px";
+  bait.style.height = "1px";
+  bait.style.position = "absolute";
+  bait.style.top = "-9999px";
+  document.body.appendChild(bait);
+  const baitStyle = getComputedStyle(bait);
+  if (baitStyle.display === "none" || baitStyle.visibility === "hidden")
+    adDetected = true;
+  bait.remove();
+
+  const scriptCheck = new Promise((resolve) => {
+    const testScript = document.createElement("script");
+    testScript.type = "text/javascript";
+    testScript.async = true;
+    testScript.src =
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+
+    let called = false;
+    testScript.onerror = () => {
+      if (!called) {
+        called = true;
+        resolve(true);
+      }
+    };
+    testScript.onload = () => {
+      if (!called) {
+        called = true;
+        resolve(false);
+      }
+    };
+    document.head.appendChild(testScript);
+  });
+
+  const braveCheck = new Promise((resolve) => {
+    if (navigator.brave && typeof navigator.brave.isBrave === "function") {
+      navigator.brave.isBrave().then((isBrave) => resolve(isBrave));
+    } else resolve(false);
+  });
+
+  Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
+    if (adDetected || scriptBlocked || isBrave) showAdBlockWarningAdvanced();
+  });
+}
+
+function showAdBlockWarningAdvanced() {
+  const overlay = document.createElement("div");
+  overlay.className = "adblock-overlay";
+  overlay.innerHTML = `
+    <div class="adblock-container">
+      <h2>⚠️ AdBlocker or Brave Detected</h2>
+      <p>We noticed you're using an AdBlocker or Brave browser. Please disable it or use a normal browser for the best experience.</p>
+      <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+window.addEventListener("load", detectAdBlockerAdvanced);
+
+/* ========================================================= */
+/* ✅ FETCH & DISPLAY MOVIES =============================== */
 /* ========================================================= */
 async function fetchMovies() {
   try {
     const res = await fetch("/api/movies");
     movies = await res.json();
-    movies.reverse(); // latest first
+    movies.reverse();
     displayMovies();
-    fetchTopDownloads();
   } catch (err) {
     console.error("Error fetching movies:", err);
   }
@@ -44,31 +119,29 @@ function displayMovies(list = movies) {
           ${movie.qualities
             .map(
               (q) => `
-            <p>📥 ${q.label} →
-              <a href="${q.url}" class="download-btn" target="_blank">Download Now</a>
-            </p>`
+              <p>📥 ${q.label} →
+                <a href="${q.url}" class="download-btn" target="_blank">Download Now</a>
+              </p>`
             )
             .join("")}
         </div>
-      </div>
-    `;
+      </div>`;
     container.appendChild(card);
   });
 
   setupPagination(list);
-  styleDownloadButtons(); // Apply glowing red style
+  styleDownloadButtons();
 }
 
 /* ========================================================= */
-/* ===================== PAGINATION ======================= */
+/* ✅ PAGINATION (Stable after search/back) ================ */
 /* ========================================================= */
 function setupPagination(list = movies) {
   pagination.innerHTML = "";
-
   const pageCount = Math.ceil(list.length / moviesPerPage);
   if (pageCount <= 1) return;
 
-  // Previous button
+  // Prev
   const prevBtn = document.createElement("button");
   prevBtn.textContent = "⟨ Prev";
   prevBtn.disabled = currentPage === 1;
@@ -81,20 +154,20 @@ function setupPagination(list = movies) {
   };
   pagination.appendChild(prevBtn);
 
-  // Number buttons
+  // Page numbers
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
+    if (i === currentPage) btn.style.background = "#ff003c";
     btn.onclick = () => {
       currentPage = i;
       displayMovies(isSearching ? filteredMovies : movies);
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
-    if (i === currentPage) btn.style.background = "#ff003c";
     pagination.appendChild(btn);
   }
 
-  // Next button
+  // Next
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "Next ⟩";
   nextBtn.disabled = currentPage === pageCount;
@@ -109,7 +182,7 @@ function setupPagination(list = movies) {
 }
 
 /* ========================================================= */
-/* ===================== SEARCH BAR ======================= */
+/* ✅ SEARCH BAR (Stable pagination) ======================= */
 /* ========================================================= */
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase().trim();
@@ -120,89 +193,49 @@ searchBar.addEventListener("input", (e) => {
     displayMovies(movies);
     return;
   }
-
   isSearching = true;
-  filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(term)
+  filteredMovies = movies.filter((m) =>
+    m.title.toLowerCase().includes(term)
   );
   currentPage = 1;
   displayMovies(filteredMovies);
 });
 
 /* ========================================================= */
-/* ===================== TOP DOWNLOADS ===================== */
-/* ========================================================= */
-async function fetchTopDownloads() {
-  if (!topContainer) return;
-  try {
-    const res = await fetch("/api/top-downloads");
-    const topMovies = await res.json();
-    topMovies.reverse();
-
-    topContainer.innerHTML = "";
-    topMovies.forEach((movie) => {
-      const card = document.createElement("div");
-      card.classList.add("top-movie-card");
-      card.innerHTML = `
-        <img src="${movie.image}" alt="${movie.title}" class="top-movie-img" />
-        <h3>${movie.title}</h3>
-        <p>📈 ${movie.downloadCount || 0} downloads</p>
-      `;
-      topContainer.appendChild(card);
-    });
-  } catch (err) {
-    console.error("Error fetching top downloads:", err);
-  }
-}
-
-/* ========================================================= */
-/* ===================== DOWNLOAD BUTTON STYLE ============ */
+/* ✅ RED GLOWING DOWNLOAD BUTTON (Turns Green When Clicked) */
 /* ========================================================= */
 function styleDownloadButtons() {
-  const buttons = document.querySelectorAll(".download-btn");
-
-  buttons.forEach((btn) => {
-    // Base style
+  document.querySelectorAll(".download-btn").forEach((btn) => {
     btn.style.textDecoration = "none";
+    btn.style.border = "none";
+    btn.style.padding = "6px 16px";
+    btn.style.borderRadius = "25px";
+    btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
     btn.style.color = "#fff";
-    btn.style.background = "#ff003c";
-    btn.style.padding = "6px 14px";
-    btn.style.borderRadius = "6px";
+    btn.style.cursor = "pointer";
     btn.style.fontWeight = "600";
+    btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
     btn.style.transition = "all 0.3s ease";
-    btn.style.boxShadow = "0 0 8px rgba(255, 0, 60, 0.5)";
-    btn.style.display = "inline-block";
-    btn.style.marginLeft = "8px";
-
-    // Hover animation
     btn.addEventListener("mouseenter", () => {
-      btn.style.background = "#ff1f5a";
-      btn.style.boxShadow = "0 0 15px rgba(255, 30, 80, 0.8)";
-      btn.style.transform = "scale(1.06)";
-    });
-
-    btn.addEventListener("mouseleave", () => {
-      btn.style.background = "#ff003c";
-      btn.style.boxShadow = "0 0 8px rgba(255, 0, 60, 0.5)";
-      btn.style.transform = "scale(1)";
-    });
-
-    // Click / tap glow switch effect
-    btn.addEventListener("mousedown", () => {
-      btn.style.background = "#00c851"; // green
-      btn.style.boxShadow = "0 0 18px rgba(0, 255, 100, 0.8)";
+      btn.style.boxShadow = "0 0 20px rgba(255, 0, 90, 1)";
       btn.style.transform = "scale(1.08)";
     });
-
-    btn.addEventListener("mouseup", () => {
-      btn.style.background = "#ff003c";
+    btn.addEventListener("mouseleave", () => {
       btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
-      btn.style.transform = "scale(1.02)";
+      btn.style.transform = "scale(1)";
+    });
+    btn.addEventListener("click", () => {
+      btn.style.background = "#00c851";
+      btn.style.boxShadow = "0 0 18px rgba(0,255,120,0.8)";
+      setTimeout(() => {
+        btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
+        btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
+      }, 1500);
     });
   });
 }
 
 /* ========================================================= */
-/* ===================== INITIAL LOAD ===================== */
+/* ✅ INITIAL LOAD ========================================= */
 /* ========================================================= */
 fetchMovies();
