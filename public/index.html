@@ -3,23 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Complete Movie Collection</title>
+  <title>🎬 My Complete Movie Collection</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* ===== GLOBAL ===== */
     body {
       font-family: "Poppins", sans-serif;
       background: #0b0b0b;
       color: #fff;
       margin: 0;
       padding: 0;
-      text-align: center;
     }
-    header { padding: 20px; }
-    h1 { color: #ff3c78; text-shadow: 0 0 15px #ff3c78; }
 
+    header {
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    h1 {
+      color: #ff3c78;
+      text-shadow: 0 0 15px #ff3c78;
+      font-size: 2rem;
+    }
+
+    p {
+      color: #ccc;
+    }
+
+    /* ===== SEARCH BAR ===== */
     #searchBar {
       width: 80%;
-      padding: 10px;
+      max-width: 600px;
+      padding: 12px;
       border-radius: 10px;
       border: none;
       font-size: 16px;
@@ -30,73 +45,125 @@
       box-shadow: 0 0 10px #ff3c78;
       transition: 0.3s;
     }
-    #searchBar:focus { box-shadow: 0 0 15px #ff8800; }
 
+    #searchBar:focus {
+      box-shadow: 0 0 15px #ff8800;
+    }
+
+    /* ===== NOTICE BOX ===== */
     .highlight-note {
       background: linear-gradient(90deg, #ff0055, #ff8800);
       color: #fff;
       padding: 10px;
       border-radius: 10px;
-      margin: 15px auto;
+      margin: 20px auto;
       width: fit-content;
       font-weight: bold;
       animation: blink 1.5s infinite;
     }
-    .highlight-note a { color: #fff; text-decoration: underline; font-weight: 700; }
-    .highlight-note a:hover { color: #ffe600; }
-    @keyframes blink { 0%,100%{opacity:1;}50%{opacity:0.6;} }
-    .note { margin-top: 10px; color: #ccc; font-size: 14px; }
 
-    /* ===== Top Downloads Slider ===== */
-    #topDownloadsContainer { position: relative; margin: 25px 0; }
-    #topDownloads {
-      display: flex;
-      overflow-x: auto;
-      gap: 15px;
-      padding: 10px 0;
-      scroll-behavior: smooth;
+    .highlight-note a {
+      color: #fff;
+      text-decoration: underline;
+      font-weight: 700;
     }
-    #topDownloads::-webkit-scrollbar { display: none; }
-    .top-movie-card {
-      flex: 0 0 auto;
-      width: 150px;
-      background: #111;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255,0,60,0.4);
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: pointer;
+
+    .highlight-note a:hover {
+      color: #ffe600;
+    }
+
+    @keyframes blink {
+      0%,100%{opacity:1;}
+      50%{opacity:0.6;}
+    }
+
+    .note {
+      margin-top: 10px;
+      color: #ccc;
+      font-size: 14px;
       text-align: center;
     }
-    .top-movie-card:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 35px rgba(255,0,60,0.7);
-    }
-    .top-movie-card img { width: 100%; border-radius: 10px; }
-    .top-movie-card h3 { font-size: 0.95rem; color: #ff99cc; margin: 5px 0; }
-    .top-movie-card p { font-size: 0.85rem; color: #ffcc99; margin-bottom: 8px; }
 
-    .slider-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 2rem;
-      color: #ff003c;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* ===== MOVIE GRID (Netflix style) ===== */
+    main#movieContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+      padding: 30px 15px;
+      justify-items: center;
+    }
+
+    .movie-card {
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 60, 120, 0.3);
+      transition: transform 0.3s, box-shadow 0.3s;
       cursor: pointer;
-      z-index: 10;
-      transition: 0.3s;
+      width: 100%;
+      max-width: 200px;
     }
-    .slider-arrow:hover { background: rgba(255,0,60,0.7); }
-    #arrowLeft { left: 0; }
-    #arrowRight { right: 0; }
 
-    /* ===== Redirect Page ===== */
+    .movie-card:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px rgba(255, 60, 120, 0.7);
+    }
+
+    .movie-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-bottom: 2px solid #ff3c78;
+    }
+
+    .movie-info {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .movie-info h3 {
+      font-size: 1rem;
+      color: #ff99cc;
+      margin: 5px 0;
+    }
+
+    .movie-info p {
+      font-size: 0.85rem;
+      color: #ffcc99;
+      margin: 0;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0 40px;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      background: linear-gradient(90deg, #ff0055, #ff8800);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .pagination button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 136, 0, 0.6);
+    }
+
+    .pagination button.active {
+      background: #ff3c78;
+      box-shadow: 0 0 10px #ff3c78;
+    }
+
+    /* ===== REDIRECT PAGE ===== */
     .redirect-body {
       background: radial-gradient(circle at center, #000, #0a0a0a);
       height: 100vh;
@@ -108,14 +175,18 @@
       color: #fff;
       padding: 20px;
     }
-    .redirect-body h2 { color: #ff003c; text-shadow: 0 0 15px #ff003c; }
+
+    .redirect-body h2 {
+      color: #ff003c;
+      text-shadow: 0 0 15px #ff003c;
+    }
   </style>
 </head>
 
 <body>
   <header>
     <h1>🎬 My Complete Movie Collection 🎬</h1>
-    <p>Use the search bar below to find any movie quickly.</p>
+    <p>Find your favorite movies instantly!</p>
     <input type="text" id="searchBar" placeholder="🔎 Search movies..." />
 
     <div class="highlight-note">
@@ -125,16 +196,8 @@
     </div>
 
     <p class="note">
-      Please go to the Play Store and install the <strong>Google Chrome</strong> app before downloading.
+      Please install <strong>Google Chrome</strong> before downloading any movie.
     </p>
-
-    <!-- Top Downloads Slider -->
-    <h2>🔥 Top Downloads</h2>
-    <div id="topDownloadsContainer">
-      <div class="slider-arrow" id="arrowLeft">&#10094;</div>
-      <div class="slider-arrow" id="arrowRight">&#10095;</div>
-      <div id="topDownloads"></div>
-    </div>
   </header>
 
   <main id="movieContainer"></main>
@@ -162,34 +225,6 @@
         setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2000);
       }
     });
-
-    // ===== Top Downloads Auto Update ======
-    const topDownloads = document.getElementById("topDownloads");
-    async function fetchTopDownloads() {
-      try {
-        const res = await fetch("/api/top-downloads");
-        const movies = await res.json();
-        topDownloads.innerHTML = "";
-        movies.forEach(movie => {
-          const card = document.createElement("div");
-          card.className = "top-movie-card";
-          card.innerHTML = `
-            <img src="${movie.image}" alt="${movie.title}" />
-            <h3>${movie.title}</h3>
-            <p>Downloads: ${movie.downloadCount}</p>
-          `;
-          topDownloads.appendChild(card);
-        });
-      } catch(err) { console.error("Failed to fetch top downloads:", err); }
-    }
-    fetchTopDownloads();
-    setInterval(fetchTopDownloads, 30000);
-
-    // Slider arrows
-    const arrowLeft = document.getElementById("arrowLeft");
-    const arrowRight = document.getElementById("arrowRight");
-    arrowLeft.addEventListener("click", () => topDownloads.scrollBy({ left: -300, behavior: "smooth" }));
-    arrowRight.addEventListener("click", () => topDownloads.scrollBy({ left: 300, behavior: "smooth" }));
   </script>
 </body>
 </html>
