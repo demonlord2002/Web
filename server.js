@@ -32,14 +32,14 @@ const movieSchema = new mongoose.Schema({
 
 const Movie = mongoose.model("Movie", movieSchema);
 
-// ====== Load movies.json and update MongoDB ======
+// ====== Load movies.json and sync MongoDB ======
 fs.readFile(path.join(__dirname, "movies.json"), "utf-8", async (err, data) => {
   if (err) return console.log("❌ Error reading movies.json");
 
   try {
     const movies = JSON.parse(data);
 
-    // Delete old movies and import fresh from movies.json
+    // Clear existing movies and re-import fresh
     await Movie.deleteMany({});
     await Movie.insertMany(movies);
     console.log("✅ Movies imported/updated in MongoDB");
@@ -50,11 +50,11 @@ fs.readFile(path.join(__dirname, "movies.json"), "utf-8", async (err, data) => {
 
 // ====== API ROUTES ======
 
-// Get all movies in the same order as movies.json
+// Get all movies
 app.get("/api/movies", async (req, res) => {
   try {
-    const movies = await Movie.find(); // preserves insertion order
-    res.json(movies); 
+    const movies = await Movie.find();
+    res.json(movies);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch movies" });
   }
@@ -75,16 +75,6 @@ app.post("/api/increment", async (req, res) => {
     res.json({ success: true, downloadCount: movie.downloadCount });
   } catch (err) {
     res.status(500).json({ error: "Failed to increment download count" });
-  }
-});
-
-// Get top downloads
-app.get("/api/top-downloads", async (req, res) => {
-  try {
-    const topMovies = await Movie.find().sort({ downloadCount: -1 }).limit(10);
-    res.json(topMovies);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch top downloads" });
   }
 });
 
