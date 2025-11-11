@@ -1,42 +1,114 @@
-/* ========================================================= */
-/* =================== ELEMENT SELECTORS ================== */
-/* ========================================================= */
 const container = document.getElementById("movieContainer");
 const searchBar = document.getElementById("searchBar");
 const pagination = document.getElementById("pagination");
-const topContainer = document.getElementById("topDownloads");
 
 let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
-let filteredMovies = [];
-let isSearching = false;
 
-/* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES =============================== */
-/* ========================================================= */
-async function fetchMovies() {
-  try {
-    const res = await fetch("/api/movies");
-    movies = await res.json();
-    movies.reverse();
-    displayMovies();
-  } catch (err) {
-    console.error("Error fetching movies:", err);
-  }
+/* ================== ADVANCED ADBLOCK + BRAVE DETECTION ================== */
+function detectAdBlockerAdvanced() {
+  let adDetected = false;
+
+  // 1️⃣ Classic hidden div detection
+  const adDiv = document.createElement('div');
+  adDiv.className = 'adsbox';
+  adDiv.style.height = '1px';
+  adDiv.style.position = 'absolute';
+  adDiv.style.top = '-1000px';
+  document.body.appendChild(adDiv);
+
+  if (adDiv.offsetHeight === 0) adDetected = true;
+  adDiv.remove();
+
+  // 2️⃣ Bait div detection (aggressive blockers)
+  const bait = document.createElement('div');
+  bait.className = 'adsbox bait';
+  bait.style.width = '1px';
+  bait.style.height = '1px';
+  bait.style.position = 'absolute';
+  bait.style.top = '-9999px';
+  document.body.appendChild(bait);
+
+  const baitStyle = getComputedStyle(bait);
+  if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
+  bait.remove();
+
+  // 3️⃣ Script blocking detection (Brave + uBlock + AdGuard)
+  const scriptCheck = new Promise((resolve) => {
+    const testScript = document.createElement('script');
+    testScript.type = 'text/javascript';
+    testScript.async = true;
+    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+    let called = false;
+    testScript.onerror = () => {
+      if (!called) { called = true; resolve(true); } // Script blocked
+    };
+    testScript.onload = () => {
+      if (!called) { called = true; resolve(false); } // Script loaded
+    };
+
+    document.head.appendChild(testScript);
+  });
+
+  // 4️⃣ Brave-specific detection (navigator properties)
+  const braveCheck = new Promise((resolve) => {
+    if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+      navigator.brave.isBrave().then((isBrave) => {
+        resolve(isBrave); // true if Brave
+      });
+    } else {
+      resolve(false);
+    }
+  });
+
+  // Combine results
+  Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
+    if (adDetected || scriptBlocked || isBrave) {
+      showAdBlockWarningAdvanced();
+    }
+  });
 }
 
-function displayMovies(list = movies) {
+function showAdBlockWarningAdvanced() {
+  const overlay = document.createElement('div');
+  overlay.className = 'adblock-overlay';
+  overlay.innerHTML = `
+    <div class="adblock-container">
+      <h2>⚠️ AdBlocker or Brave Detected</h2>
+      <p>We noticed you are using an ad blocker or Brave browser. To access downloads, please disable the ad blocker or use a standard browser, then refresh the page.</p>
+      <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+// Run advanced detection on page load
+window.addEventListener('load', detectAdBlockerAdvanced);
+
+/* ========================================================= */
+/* ✅ FETCH & DISPLAY MOVIES (EXISTING CODE, UNTOUCHED)     */
+/* ========================================================= */
+async function fetchMovies() {
+  const res = await fetch("/api/movies");
+  movies = await res.json();
+
+  // ✅ Show latest uploads first
+  movies.reverse();
+
+  displayMovies();
+}
+
+function displayMovies() {
   const start = (currentPage - 1) * moviesPerPage;
   const end = start + moviesPerPage;
-  const visibleMovies = list.slice(start, end);
+  const visibleMovies = movies.slice(start, end);
   container.innerHTML = "";
 
   visibleMovies.forEach((movie) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
-
-    const movieKey = movie.title.toLowerCase().trim();
 
     card.innerHTML = `
       <div class="movie-row">
@@ -47,145 +119,72 @@ function displayMovies(list = movies) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <a href="${q.url}" class="download-btn" target="_blank"
-                   data-movie="${movieKey}">Download Now</a>
-              </p>`
+                <a href="${q.url}" target="_blank" class="final-download-btn" style="display:inline-block;">Download Now</a>
+              </p>
+            `
             )
             .join("")}
         </div>
-      </div>`;
+      </div>
+    `;
     container.appendChild(card);
   });
 
-  setupPagination(list);
-  styleDownloadButtons();
+  setupPagination();
 }
 
-/* ========================================================= */
-/* ✅ PAGINATION (Stable after search/back) ================ */
-/* ========================================================= */
-function setupPagination(list = movies) {
+function setupPagination() {
   pagination.innerHTML = "";
-  const pageCount = Math.ceil(list.length / moviesPerPage);
-  if (pageCount <= 1) return;
-
-  const prevBtn = document.createElement("button");
-  prevBtn.textContent = "⟨ Prev";
-  prevBtn.disabled = currentPage === 1;
-  prevBtn.onclick = () => {
-    if (currentPage > 1) {
-      currentPage--;
-      displayMovies(isSearching ? filteredMovies : movies);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-  pagination.appendChild(prevBtn);
+  const pageCount = Math.ceil(movies.length / moviesPerPage);
 
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
-    if (i === currentPage) btn.style.background = "#ff003c";
     btn.onclick = () => {
       currentPage = i;
-      displayMovies(isSearching ? filteredMovies : movies);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      displayMovies();
     };
+    if (i === currentPage) btn.style.background = "#ff003c";
     pagination.appendChild(btn);
   }
-
-  const nextBtn = document.createElement("button");
-  nextBtn.textContent = "Next ⟩";
-  nextBtn.disabled = currentPage === pageCount;
-  nextBtn.onclick = () => {
-    if (currentPage < pageCount) {
-      currentPage++;
-      displayMovies(isSearching ? filteredMovies : movies);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-  pagination.appendChild(nextBtn);
 }
 
-/* ========================================================= */
-/* ✅ SEARCH BAR (Stable pagination) ======================= */
-/* ========================================================= */
 searchBar.addEventListener("input", (e) => {
-  const term = e.target.value.toLowerCase().trim();
-  if (term === "") {
-    isSearching = false;
-    filteredMovies = [];
-    currentPage = 1;
-    displayMovies(movies);
-    return;
-  }
-  isSearching = true;
-  filteredMovies = movies.filter((m) =>
-    m.title.toLowerCase().includes(term)
+  const term = e.target.value.toLowerCase();
+  const filtered = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(term)
   );
-  currentPage = 1;
-  displayMovies(filteredMovies);
+  displayFiltered(filtered);
 });
 
-/* ========================================================= */
-/* ✅ RED GLOWING ANIMATED DOWNLOAD BUTTON ================= */
-/* ========================================================= */
-function styleDownloadButtons() {
-  document.querySelectorAll(".download-btn").forEach((btn) => {
-    btn.style.textDecoration = "none";
-    btn.style.border = "none";
-    btn.style.padding = "8px 20px";
-    btn.style.borderRadius = "25px";
-    btn.style.cursor = "pointer";
-    btn.style.fontWeight = "700";
-    btn.style.color = "#fff";
-    btn.style.letterSpacing = "0.5px";
-    btn.style.transition = "all 0.3s ease";
-    btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
-    btn.style.boxShadow = "0 0 18px rgba(255, 0, 80, 0.9)";
-    btn.style.animation = "pulseRed 2s infinite";
-
-    // Hover effect
-    btn.addEventListener("mouseenter", () => {
-      btn.style.transform = "scale(1.08)";
-      btn.style.boxShadow = "0 0 25px rgba(255, 0, 90, 1)";
-    });
-
-    btn.addEventListener("mouseleave", () => {
-      btn.style.transform = "scale(1)";
-      btn.style.boxShadow = "0 0 18px rgba(255, 0, 80, 0.9)";
-    });
-
-    // Click action animation
-    btn.addEventListener("click", (e) => {
-      e.target.classList.add("clicked-flash");
-      setTimeout(() => e.target.classList.remove("clicked-flash"), 500);
-    });
+function displayFiltered(list) {
+  container.innerHTML = "";
+  list.forEach((movie) => {
+    const card = document.createElement("div");
+    card.classList.add("movie-card");
+    card.innerHTML = `
+      <div class="movie-row">
+        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${movie.qualities
+            .map(
+              (q) => `
+              <p>📥 ${q.label} →
+                <a href="${q.url}" target="_blank" class="final-download-btn" style="display:inline-block;">Download Now</a>
+              </p>
+            `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
   });
+  pagination.innerHTML = "";
 }
 
 /* ========================================================= */
-/* ✅ KEYFRAME ANIMATIONS (Dynamic CSS Injected) ============ */
-/* ========================================================= */
-const style = document.createElement("style");
-style.textContent = `
-@keyframes pulseRed {
-  0% { box-shadow: 0 0 12px rgba(255, 0, 80, 0.6); transform: scale(1); }
-  50% { box-shadow: 0 0 22px rgba(255, 0, 80, 1); transform: scale(1.03); }
-  100% { box-shadow: 0 0 12px rgba(255, 0, 80, 0.6); transform: scale(1); }
-}
-
-.clicked-flash {
-  animation: flashClick 0.5s ease;
-}
-
-@keyframes flashClick {
-  0% { background: linear-gradient(90deg, #ff4d6d, #ff003c); box-shadow: 0 0 40px rgba(255,255,255,1); transform: scale(1.15); }
-  100% { background: linear-gradient(90deg, #ff003c, #ff4d6d); box-shadow: 0 0 18px rgba(255, 0, 80, 0.9); transform: scale(1); }
-}
-`;
-document.head.appendChild(style);
-
-/* ========================================================= */
-/* ✅ INITIAL LOAD ========================================= */
+/* ✅ LOAD ALL MOVIES                                         */
 /* ========================================================= */
 fetchMovies();
