@@ -1,6 +1,4 @@
-/* ========================================================= */
-/* === GLOBAL BASE DESIGN ================================== */
-/* ========================================================= */
+/* === BASE DESIGN (Original) === */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -24,9 +22,6 @@ h1 {
   color: #ff8fa3;
 }
 
-/* ========================================================= */
-/* === SEARCH BAR ========================================== */
-/* ========================================================= */
 #searchBar {
   padding: 10px;
   border: none;
@@ -45,60 +40,56 @@ h1 {
   box-shadow: 0 0 20px #ff3366;
 }
 
-/* ========================================================= */
-/* === MOVIE GRID (Netflix Style) ========================== */
-/* ========================================================= */
-#movieContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 25px;
-  padding: 30px 20px;
-  justify-items: center;
-}
-
+/* === MOVIE CARD BASE === */
 .movie-card {
   background: #111;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(255, 0, 60, 0.4);
+  border-radius: 20px;
+  margin: 20px auto;
+  padding: 15px;
+  width: 90%;
+  max-width: 650px;
+  box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-  width: 100%;
-  max-width: 200px;
 }
 
 .movie-card:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 35px rgba(255, 0, 60, 0.8);
+  transform: scale(1.03);
+  box-shadow: 0 0 25px rgba(255, 0, 60, 0.7);
 }
 
-.movie-card img {
-  width: 100%;
-  height: 260px;
-  object-fit: cover;
-  border-bottom: 2px solid #ff003c;
+/* === FLEX LAYOUT === */
+.movie-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.movie-img {
+  width: 40%;
+  max-width: 180px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
+  transition: transform 0.3s ease;
+}
+
+.movie-img:hover {
+  transform: scale(1.05);
 }
 
 .movie-info {
-  padding: 10px;
-  text-align: center;
+  flex: 1;
+  text-align: left;
 }
 
-.movie-info h3 {
-  font-size: 1rem;
+.movie-info h2 {
+  font-size: 1.2rem;
   color: #ff99cc;
-  margin: 5px 0;
+  margin-bottom: 10px;
 }
 
-.movie-info p {
-  font-size: 0.85rem;
-  color: #ffcc99;
-  margin: 0;
-}
-
-/* ========================================================= */
-/* === DOWNLOAD BUTTONS ==================================== */
-/* ========================================================= */
+/* === DOWNLOAD BUTTON === */
 .download-btn {
   display: inline-block;
   margin: 8px 5px;
@@ -122,41 +113,53 @@ h1 {
   box-shadow: 0 0 20px #00ff66;
 }
 
-/* ========================================================= */
-/* === PAGINATION ========================================== */
-/* ========================================================= */
+/* === PAGINATION === */
 .pagination {
   margin: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
 }
 
 .pagination button {
-  background: linear-gradient(90deg, #ff0055, #ff8800);
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
+  background: #111;
   color: #fff;
-  font-weight: 600;
+  border: 1px solid #ff003c;
+  margin: 3px;
+  padding: 8px 15px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.3s;
+  transition: all 0.3s ease;
 }
 
 .pagination button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(255, 136, 0, 0.6);
+  background: #ff003c;
+  box-shadow: 0 0 15px #ff003c;
 }
 
-.pagination button.active {
-  background: #ff3c78;
-  box-shadow: 0 0 10px #ff3c78;
+/* === MOBILE FRIENDLY === */
+@media (max-width: 600px) {
+  .movie-row {
+    flex-direction: row;
+  }
+
+  .movie-img {
+    width: 45%;
+    max-width: 150px;
+  }
+
+  .movie-info {
+    width: 50%;
+  }
+
+  .movie-info h2 {
+    font-size: 1rem;
+  }
+
+  .download-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
 }
 
-/* ========================================================= */
-/* === LANDING PAGE + EPISODE LIST ========================= */
-/* ========================================================= */
+/* === LANDING PAGE + EPISODE LIST === */
 .landing-container {
   display: flex;
   flex-wrap: wrap;
@@ -198,6 +201,7 @@ h1 {
   margin-bottom: 20px;
 }
 
+/* === EPISODE LIST === */
 .episodes {
   margin-top: 15px;
 }
@@ -240,9 +244,6 @@ h1 {
   box-shadow: 0 0 25px #ff3366;
 }
 
-/* ========================================================= */
-/* === MOBILE RESPONSIVE ================================== */
-/* ========================================================= */
 @media (max-width: 700px) {
   .landing-container {
     flex-direction: column;
@@ -256,40 +257,7 @@ h1 {
   }
 }
 
-@media (max-width: 600px) {
-  #movieContainer {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  }
-
-  .movie-card img {
-    height: 210px;
-  }
-
-  .movie-info h3 {
-    font-size: 0.9rem;
-  }
-
-  .movie-info p {
-    font-size: 0.8rem;
-  }
-}
-
-/* ========================================================= */
-/* === DOWNLOAD TIMER + FINAL BUTTON ======================= */
-/* ========================================================= */
-.timer-text {
-  display: inline-block;
-  color: #ffccd5;
-  font-size: 14px;
-  margin-left: 10px;
-  animation: pulse 1s infinite alternate;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
+/* === FINAL GREEN DOWNLOAD BUTTON === */
 .final-download-btn {
   display: inline-block;
   margin-left: 10px;
@@ -307,115 +275,4 @@ h1 {
   background-color: #27ae60;
   transform: scale(1.05);
   box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);
-}
-
-/* ========================================================= */
-/* === FULLSCREEN AD OVERLAY =============================== */
-/* ========================================================= */
-.fullscreen-ad-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(10, 0, 15, 0.97);
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(6px);
-  animation: fadeIn 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.ad-container {
-  background: #111;
-  border: 2px solid #ff0066;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 0 30px #ff0066;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-  animation: glowPulse 2s infinite alternate;
-}
-
-@keyframes glowPulse {
-  0% { box-shadow: 0 0 15px #ff0066; }
-  100% { box-shadow: 0 0 40px #ff3399; }
-}
-
-.tap-text {
-  color: #ff99cc;
-  font-weight: bold;
-  margin-top: 12px;
-  font-size: 1rem;
-  text-shadow: 0 0 10px #ff3399;
-}
-
-.tap-text.active {
-  color: #00ff99;
-  text-shadow: 0 0 15px #00ff99;
-}
-
-.show-download {
-  animation: appear 0.4s ease forwards;
-}
-
-@keyframes appear {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* ========================================================= */
-/* === AD BLOCK DETECTION OVERLAY ========================== */
-/* ========================================================= */
-.adblock-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 99999;
-  text-align: center;
-  padding: 20px;
-}
-
-.adblock-container {
-  background: #111;
-  padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 0 25px #ff003c;
-  max-width: 450px;
-}
-
-.adblock-container h2 {
-  color: #ff003c;
-  margin-bottom: 15px;
-  font-size: 22px;
-}
-
-.adblock-container p {
-  margin-bottom: 20px;
-  font-size: 16px;
-  line-height: 1.4;
-}
-
-.adblock-container button {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.adblock-container button:hover {
-  transform: scale(1.05);
 }
