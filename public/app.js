@@ -41,10 +41,14 @@ function displayMovies(list = movies) {
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
         <div class="movie-info">
           <h2>${movie.title}</h2>
-          ${movie.qualities.map(q => `
+          ${movie.qualities
+            .map(
+              (q) => `
             <p>📥 ${q.label} →
               <a href="${q.url}" class="download-btn" target="_blank">Download Now</a>
-            </p>`).join("")}
+            </p>`
+            )
+            .join("")}
         </div>
       </div>
     `;
@@ -52,7 +56,7 @@ function displayMovies(list = movies) {
   });
 
   setupPagination(list);
-  styleDownloadButtons(); // Apply green glow button styling
+  styleDownloadButtons(); // Apply glowing red style
 }
 
 /* ========================================================= */
@@ -158,39 +162,42 @@ function styleDownloadButtons() {
   const buttons = document.querySelectorAll(".download-btn");
 
   buttons.forEach((btn) => {
+    // Base style
     btn.style.textDecoration = "none";
     btn.style.color = "#fff";
-    btn.style.background = "#00b341";
+    btn.style.background = "#ff003c";
     btn.style.padding = "6px 14px";
     btn.style.borderRadius = "6px";
     btn.style.fontWeight = "600";
-    btn.style.transition = "0.25s";
-    btn.style.boxShadow = "0 0 6px rgba(0, 255, 120, 0.4)";
+    btn.style.transition = "all 0.3s ease";
+    btn.style.boxShadow = "0 0 8px rgba(255, 0, 60, 0.5)";
     btn.style.display = "inline-block";
     btn.style.marginLeft = "8px";
 
+    // Hover animation
     btn.addEventListener("mouseenter", () => {
-      btn.style.background = "#00ff80";
-      btn.style.color = "#000";
-      btn.style.boxShadow = "0 0 12px rgba(0, 255, 140, 0.8)";
-      btn.style.transform = "scale(1.05)";
+      btn.style.background = "#ff1f5a";
+      btn.style.boxShadow = "0 0 15px rgba(255, 30, 80, 0.8)";
+      btn.style.transform = "scale(1.06)";
     });
 
     btn.addEventListener("mouseleave", () => {
-      btn.style.background = "#00b341";
-      btn.style.color = "#fff";
-      btn.style.boxShadow = "0 0 6px rgba(0, 255, 120, 0.4)";
+      btn.style.background = "#ff003c";
+      btn.style.boxShadow = "0 0 8px rgba(255, 0, 60, 0.5)";
       btn.style.transform = "scale(1)";
     });
 
+    // Click / tap glow switch effect
     btn.addEventListener("mousedown", () => {
-      btn.style.background = "#00e673";
-      btn.style.boxShadow = "0 0 18px rgba(0, 255, 100, 0.9)";
+      btn.style.background = "#00c851"; // green
+      btn.style.boxShadow = "0 0 18px rgba(0, 255, 100, 0.8)";
+      btn.style.transform = "scale(1.08)";
     });
 
     btn.addEventListener("mouseup", () => {
-      btn.style.background = "#00ff80";
-      btn.style.boxShadow = "0 0 12px rgba(0, 255, 140, 0.8)";
+      btn.style.background = "#ff003c";
+      btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
+      btn.style.transform = "scale(1.02)";
     });
   });
 }
