@@ -5,9 +5,10 @@ const pagination = document.getElementById("pagination");
 let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
+let filteredMovies = null; // Track filtered list
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (CLEAN & UPDATED)             */
+/* ✅ FETCH & DISPLAY MOVIES                                 */
 /* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
@@ -19,16 +20,16 @@ async function fetchMovies() {
   displayMovies();
 }
 
-function displayMovies() {
+function displayMovies(list = null) {
+  const movieList = list || movies;
   const start = (currentPage - 1) * moviesPerPage;
   const end = start + moviesPerPage;
-  const visibleMovies = movies.slice(start, end);
+  const visibleMovies = movieList.slice(start, end);
   container.innerHTML = "";
 
   visibleMovies.forEach((movie) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
-
     card.innerHTML = `
       <div class="movie-row">
         <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
@@ -49,59 +50,75 @@ function displayMovies() {
     container.appendChild(card);
   });
 
-  setupPagination();
+  setupPagination(movieList);
 }
 
-function setupPagination() {
+/* ========================================================= */
+/* ✅ PAGINATION WITH PREVIOUS / NEXT                        */
+/* ========================================================= */
+function setupPagination(list) {
+  const pageCount = Math.ceil(list.length / moviesPerPage);
   pagination.innerHTML = "";
-  const pageCount = Math.ceil(movies.length / moviesPerPage);
 
+  // Previous Button
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "Previous";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayMovies(list);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+  pagination.appendChild(prevBtn);
+
+  // Page Numbers
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
+    if (i === currentPage) btn.style.background = "#ff003c";
     btn.onclick = () => {
       currentPage = i;
-      displayMovies();
+      displayMovies(list);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
-    if (i === currentPage) btn.style.background = "#ff003c";
     pagination.appendChild(btn);
   }
+
+  // Next Button
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Next";
+  nextBtn.disabled = currentPage === pageCount;
+  nextBtn.onclick = () => {
+    if (currentPage < pageCount) {
+      currentPage++;
+      displayMovies(list);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+  pagination.appendChild(nextBtn);
 }
 
+/* ========================================================= */
+/* ✅ SEARCH FUNCTIONALITY                                   */
+/* ========================================================= */
 searchBar.addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
-  const filtered = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(term)
-  );
-  displayFiltered(filtered);
-});
+  currentPage = 1; // Reset to first page on search
 
-function displayFiltered(list) {
-  container.innerHTML = "";
-  list.forEach((movie) => {
-    const card = document.createElement("div");
-    card.classList.add("movie-card");
-    card.innerHTML = `
-      <div class="movie-row">
-        <img src="${movie.image}" alt="${movie.title}" class="movie-img" />
-        <div class="movie-info">
-          <h2>${movie.title}</h2>
-          ${movie.qualities
-            .map(
-              (q) => `
-              <p>📥 ${q.label} →
-                <a href="${q.url}" target="_blank" class="download-btn">Download Now</a>
-              </p>
-            `
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-  pagination.innerHTML = "";
-}
+  if (term === "") {
+    filteredMovies = null;
+    displayMovies();
+  } else {
+    filteredMovies = movies.filter((movie) =>
+      movie.title.toLowerCase().includes(term)
+    );
+    displayMovies(filteredMovies);
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 /* ========================================================= */
 /* ✅ LOAD ALL MOVIES                                        */
@@ -135,15 +152,9 @@ style.innerHTML = `
 }
 
 @keyframes glowRed {
-  0% {
-    box-shadow: 0 0 10px #ff003c, 0 0 20px #ff3366;
-  }
-  50% {
-    box-shadow: 0 0 15px #ff003c, 0 0 25px #ff3366;
-  }
-  100% {
-    box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
-  }
+  0% { box-shadow: 0 0 10px #ff003c, 0 0 20px #ff3366; }
+  50% { box-shadow: 0 0 15px #ff003c, 0 0 25px #ff3366; }
+  100% { box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366; }
 }
 `;
 document.head.appendChild(style);
