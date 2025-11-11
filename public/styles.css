@@ -90,7 +90,8 @@ h1 {
 }
 
 /* === DOWNLOAD BUTTON === */
-.download-btn {
+.download-btn,
+.final-download-btn {
   display: inline-block;
   margin: 8px 5px;
   padding: 10px 20px;
@@ -101,16 +102,33 @@ h1 {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 0 15px #ff003c;
+  font-weight: bold;
+  text-decoration: none;
+  animation: glowRed 1.5s infinite alternate;
 }
 
-.download-btn:hover {
+.download-btn:hover,
+.final-download-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 0 25px #ff3366;
 }
 
-.download-btn:active {
-  background: #00ff66;
-  box-shadow: 0 0 20px #00ff66;
+.download-btn:active,
+.final-download-btn:active {
+  background: #ff3366;
+  box-shadow: 0 0 20px #ff3366;
+}
+
+@keyframes glowRed {
+  0% {
+    box-shadow: 0 0 10px #ff003c, 0 0 20px #ff3366;
+  }
+  50% {
+    box-shadow: 0 0 15px #ff003c, 0 0 25px #ff3366;
+  }
+  100% {
+    box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
+  }
 }
 
 /* === PAGINATION === */
@@ -153,7 +171,8 @@ h1 {
     font-size: 1rem;
   }
 
-  .download-btn {
+  .download-btn,
+  .final-download-btn {
     padding: 8px 15px;
     font-size: 0.9rem;
   }
@@ -255,24 +274,4 @@ h1 {
   .info {
     width: 90%;
   }
-}
-
-/* === FINAL GREEN DOWNLOAD BUTTON === */
-.final-download-btn {
-  display: inline-block;
-  margin-left: 10px;
-  padding: 8px 18px;
-  background-color: #2ecc71;
-  color: #fff;
-  border-radius: 25px;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
-  transition: all 0.3s ease;
-}
-
-.final-download-btn:hover {
-  background-color: #27ae60;
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(46, 204, 113, 0.8);
 }
