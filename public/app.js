@@ -13,82 +13,6 @@ let filteredMovies = [];
 let isSearching = false;
 
 /* ========================================================= */
-/* ✅ ADVANCED ADBLOCK + BRAVE DETECTION =================== */
-/* ========================================================= */
-function detectAdBlockerAdvanced() {
-  let adDetected = false;
-
-  const adDiv = document.createElement("div");
-  adDiv.className = "adsbox";
-  adDiv.style.height = "1px";
-  adDiv.style.position = "absolute";
-  adDiv.style.top = "-1000px";
-  document.body.appendChild(adDiv);
-  if (adDiv.offsetHeight === 0) adDetected = true;
-  adDiv.remove();
-
-  const bait = document.createElement("div");
-  bait.className = "adsbox bait";
-  bait.style.width = "1px";
-  bait.style.height = "1px";
-  bait.style.position = "absolute";
-  bait.style.top = "-9999px";
-  document.body.appendChild(bait);
-  const baitStyle = getComputedStyle(bait);
-  if (baitStyle.display === "none" || baitStyle.visibility === "hidden")
-    adDetected = true;
-  bait.remove();
-
-  const scriptCheck = new Promise((resolve) => {
-    const testScript = document.createElement("script");
-    testScript.type = "text/javascript";
-    testScript.async = true;
-    testScript.src =
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-
-    let called = false;
-    testScript.onerror = () => {
-      if (!called) {
-        called = true;
-        resolve(true);
-      }
-    };
-    testScript.onload = () => {
-      if (!called) {
-        called = true;
-        resolve(false);
-      }
-    };
-    document.head.appendChild(testScript);
-  });
-
-  const braveCheck = new Promise((resolve) => {
-    if (navigator.brave && typeof navigator.brave.isBrave === "function") {
-      navigator.brave.isBrave().then((isBrave) => resolve(isBrave));
-    } else resolve(false);
-  });
-
-  Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
-    if (adDetected || scriptBlocked || isBrave) showAdBlockWarningAdvanced();
-  });
-}
-
-function showAdBlockWarningAdvanced() {
-  const overlay = document.createElement("div");
-  overlay.className = "adblock-overlay";
-  overlay.innerHTML = `
-    <div class="adblock-container">
-      <h2>⚠️ AdBlocker or Brave Detected</h2>
-      <p>We noticed you're using an AdBlocker or Brave browser. Please disable it or use a normal browser for the best experience.</p>
-      <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-}
-
-window.addEventListener("load", detectAdBlockerAdvanced);
-
-/* ========================================================= */
 /* ✅ FETCH & DISPLAY MOVIES =============================== */
 /* ========================================================= */
 async function fetchMovies() {
@@ -120,7 +44,8 @@ function displayMovies(list = movies) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <a href="${q.url}" class="download-btn" target="_blank">Download Now</a>
+                <a href="${q.url}" class="download-btn" target="_blank"
+                   data-url="${q.url}">Download Now</a>
               </p>`
             )
             .join("")}
@@ -202,37 +127,72 @@ searchBar.addEventListener("input", (e) => {
 });
 
 /* ========================================================= */
-/* ✅ RED GLOWING DOWNLOAD BUTTON (Turns Green When Clicked) */
+/* ✅ RED/GREEN GLOWING DOWNLOAD BUTTON ==================== */
+/* ✅ Stay Green even after Refresh (localStorage) ========= */
 /* ========================================================= */
 function styleDownloadButtons() {
+  const clickedSet =
+    new Set(JSON.parse(localStorage.getItem("clickedDownloads") || "[]"));
+
   document.querySelectorAll(".download-btn").forEach((btn) => {
+    const url = btn.getAttribute("data-url");
+
+    // Default red glowing style
     btn.style.textDecoration = "none";
     btn.style.border = "none";
     btn.style.padding = "6px 16px";
     btn.style.borderRadius = "25px";
-    btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
-    btn.style.color = "#fff";
     btn.style.cursor = "pointer";
     btn.style.fontWeight = "600";
-    btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
     btn.style.transition = "all 0.3s ease";
+
+    // Apply style depending on clicked or not
+    if (clickedSet.has(url)) {
+      setGreenStyle(btn);
+    } else {
+      setRedStyle(btn);
+    }
+
+    // Hover effect
     btn.addEventListener("mouseenter", () => {
-      btn.style.boxShadow = "0 0 20px rgba(255, 0, 90, 1)";
       btn.style.transform = "scale(1.08)";
+      if (clickedSet.has(url)) {
+        btn.style.boxShadow = "0 0 20px rgba(0,255,120,1)";
+      } else {
+        btn.style.boxShadow = "0 0 20px rgba(255,0,90,1)";
+      }
     });
     btn.addEventListener("mouseleave", () => {
-      btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
       btn.style.transform = "scale(1)";
-    });
-    btn.addEventListener("click", () => {
-      btn.style.background = "#00c851";
-      btn.style.boxShadow = "0 0 18px rgba(0,255,120,0.8)";
-      setTimeout(() => {
-        btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
+      if (clickedSet.has(url)) {
+        btn.style.boxShadow = "0 0 12px rgba(0,255,120,0.8)";
+      } else {
         btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
-      }, 1500);
+      }
+    });
+
+    // Click → turns green permanently
+    btn.addEventListener("click", () => {
+      clickedSet.add(url);
+      localStorage.setItem(
+        "clickedDownloads",
+        JSON.stringify(Array.from(clickedSet))
+      );
+      setGreenStyle(btn);
     });
   });
+}
+
+function setRedStyle(btn) {
+  btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
+  btn.style.color = "#fff";
+  btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
+}
+
+function setGreenStyle(btn) {
+  btn.style.background = "linear-gradient(90deg, #00c851, #00e676)";
+  btn.style.color = "#fff";
+  btn.style.boxShadow = "0 0 12px rgba(0,255,120,0.8)";
 }
 
 /* ========================================================= */
