@@ -36,7 +36,6 @@ function displayMovies(list = movies) {
     const card = document.createElement("div");
     card.classList.add("movie-card");
 
-    // Unique key for this movie
     const movieKey = movie.title.toLowerCase().trim();
 
     card.innerHTML = `
@@ -70,7 +69,6 @@ function setupPagination(list = movies) {
   const pageCount = Math.ceil(list.length / moviesPerPage);
   if (pageCount <= 1) return;
 
-  // Prev
   const prevBtn = document.createElement("button");
   prevBtn.textContent = "⟨ Prev";
   prevBtn.disabled = currentPage === 1;
@@ -83,7 +81,6 @@ function setupPagination(list = movies) {
   };
   pagination.appendChild(prevBtn);
 
-  // Page numbers
   for (let i = 1; i <= pageCount; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
@@ -96,7 +93,6 @@ function setupPagination(list = movies) {
     pagination.appendChild(btn);
   }
 
-  // Next
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "Next ⟩";
   nextBtn.disabled = currentPage === pageCount;
@@ -131,77 +127,63 @@ searchBar.addEventListener("input", (e) => {
 });
 
 /* ========================================================= */
-/* ✅ RED/GREEN GLOWING DOWNLOAD BUTTON ==================== */
-/* ✅ Stay Green even after Refresh (localStorage per Movie) */
+/* ✅ RED GLOWING ANIMATED DOWNLOAD BUTTON ================= */
 /* ========================================================= */
 function styleDownloadButtons() {
-  const clickedMovies =
-    new Set(JSON.parse(localStorage.getItem("clickedMovies") || "[]"));
-
   document.querySelectorAll(".download-btn").forEach((btn) => {
-    const movieKey = btn.getAttribute("data-movie");
-
-    // Default style setup
     btn.style.textDecoration = "none";
     btn.style.border = "none";
-    btn.style.padding = "6px 16px";
+    btn.style.padding = "8px 20px";
     btn.style.borderRadius = "25px";
     btn.style.cursor = "pointer";
-    btn.style.fontWeight = "600";
+    btn.style.fontWeight = "700";
+    btn.style.color = "#fff";
+    btn.style.letterSpacing = "0.5px";
     btn.style.transition = "all 0.3s ease";
+    btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
+    btn.style.boxShadow = "0 0 18px rgba(255, 0, 80, 0.9)";
+    btn.style.animation = "pulseRed 2s infinite";
 
-    // Apply correct style
-    if (clickedMovies.has(movieKey)) {
-      setGreenStyle(btn);
-    } else {
-      setRedStyle(btn);
-    }
-
-    // Hover glow
+    // Hover effect
     btn.addEventListener("mouseenter", () => {
       btn.style.transform = "scale(1.08)";
-      if (clickedMovies.has(movieKey)) {
-        btn.style.boxShadow = "0 0 20px rgba(0,255,120,1)";
-      } else {
-        btn.style.boxShadow = "0 0 20px rgba(255,0,90,1)";
-      }
+      btn.style.boxShadow = "0 0 25px rgba(255, 0, 90, 1)";
     });
 
     btn.addEventListener("mouseleave", () => {
       btn.style.transform = "scale(1)";
-      if (clickedMovies.has(movieKey)) {
-        btn.style.boxShadow = "0 0 12px rgba(0,255,120,0.8)";
-      } else {
-        btn.style.boxShadow = "0 0 10px rgba(255,0,60,0.7)";
-      }
+      btn.style.boxShadow = "0 0 18px rgba(255, 0, 80, 0.9)";
     });
 
-    // Click event → turns green for all in same movie
-    btn.addEventListener("click", () => {
-      clickedMovies.add(movieKey);
-      localStorage.setItem(
-        "clickedMovies",
-        JSON.stringify(Array.from(clickedMovies))
-      );
-      // Update all buttons of this movie
-      document
-        .querySelectorAll(`[data-movie="${movieKey}"]`)
-        .forEach(setGreenStyle);
+    // Click action animation
+    btn.addEventListener("click", (e) => {
+      e.target.classList.add("clicked-flash");
+      setTimeout(() => e.target.classList.remove("clicked-flash"), 500);
     });
   });
 }
 
-function setRedStyle(btn) {
-  btn.style.background = "linear-gradient(90deg, #ff003c, #ff4d6d)";
-  btn.style.color = "#fff";
-  btn.style.boxShadow = "0 0 10px rgba(255, 0, 60, 0.7)";
+/* ========================================================= */
+/* ✅ KEYFRAME ANIMATIONS (Dynamic CSS Injected) ============ */
+/* ========================================================= */
+const style = document.createElement("style");
+style.textContent = `
+@keyframes pulseRed {
+  0% { box-shadow: 0 0 12px rgba(255, 0, 80, 0.6); transform: scale(1); }
+  50% { box-shadow: 0 0 22px rgba(255, 0, 80, 1); transform: scale(1.03); }
+  100% { box-shadow: 0 0 12px rgba(255, 0, 80, 0.6); transform: scale(1); }
 }
 
-function setGreenStyle(btn) {
-  btn.style.background = "linear-gradient(90deg, #00c851, #00e676)";
-  btn.style.color = "#fff";
-  btn.style.boxShadow = "0 0 12px rgba(0,255,120,0.8)";
+.clicked-flash {
+  animation: flashClick 0.5s ease;
 }
+
+@keyframes flashClick {
+  0% { background: linear-gradient(90deg, #ff4d6d, #ff003c); box-shadow: 0 0 40px rgba(255,255,255,1); transform: scale(1.15); }
+  100% { background: linear-gradient(90deg, #ff003c, #ff4d6d); box-shadow: 0 0 18px rgba(255, 0, 80, 0.9); transform: scale(1); }
+}
+`;
+document.head.appendChild(style);
 
 /* ========================================================= */
 /* ✅ INITIAL LOAD ========================================= */
