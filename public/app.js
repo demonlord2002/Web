@@ -52,6 +52,7 @@ function displayMovies(list = movies) {
   });
 
   setupPagination(list);
+  styleDownloadButtons(); // Apply green glow button styling
 }
 
 /* ========================================================= */
@@ -148,6 +149,50 @@ async function fetchTopDownloads() {
   } catch (err) {
     console.error("Error fetching top downloads:", err);
   }
+}
+
+/* ========================================================= */
+/* ===================== DOWNLOAD BUTTON STYLE ============ */
+/* ========================================================= */
+function styleDownloadButtons() {
+  const buttons = document.querySelectorAll(".download-btn");
+
+  buttons.forEach((btn) => {
+    btn.style.textDecoration = "none";
+    btn.style.color = "#fff";
+    btn.style.background = "#00b341";
+    btn.style.padding = "6px 14px";
+    btn.style.borderRadius = "6px";
+    btn.style.fontWeight = "600";
+    btn.style.transition = "0.25s";
+    btn.style.boxShadow = "0 0 6px rgba(0, 255, 120, 0.4)";
+    btn.style.display = "inline-block";
+    btn.style.marginLeft = "8px";
+
+    btn.addEventListener("mouseenter", () => {
+      btn.style.background = "#00ff80";
+      btn.style.color = "#000";
+      btn.style.boxShadow = "0 0 12px rgba(0, 255, 140, 0.8)";
+      btn.style.transform = "scale(1.05)";
+    });
+
+    btn.addEventListener("mouseleave", () => {
+      btn.style.background = "#00b341";
+      btn.style.color = "#fff";
+      btn.style.boxShadow = "0 0 6px rgba(0, 255, 120, 0.4)";
+      btn.style.transform = "scale(1)";
+    });
+
+    btn.addEventListener("mousedown", () => {
+      btn.style.background = "#00e673";
+      btn.style.boxShadow = "0 0 18px rgba(0, 255, 100, 0.9)";
+    });
+
+    btn.addEventListener("mouseup", () => {
+      btn.style.background = "#00ff80";
+      btn.style.boxShadow = "0 0 12px rgba(0, 255, 140, 0.8)";
+    });
+  });
 }
 
 /* ========================================================= */
