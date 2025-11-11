@@ -6,89 +6,8 @@ let movies = [];
 let currentPage = 1;
 const moviesPerPage = 10;
 
-/* ================== ADVANCED ADBLOCK + BRAVE DETECTION ================== */
-function detectAdBlockerAdvanced() {
-  let adDetected = false;
-
-  // 1️⃣ Classic hidden div detection
-  const adDiv = document.createElement('div');
-  adDiv.className = 'adsbox';
-  adDiv.style.height = '1px';
-  adDiv.style.position = 'absolute';
-  adDiv.style.top = '-1000px';
-  document.body.appendChild(adDiv);
-
-  if (adDiv.offsetHeight === 0) adDetected = true;
-  adDiv.remove();
-
-  // 2️⃣ Bait div detection (aggressive blockers)
-  const bait = document.createElement('div');
-  bait.className = 'adsbox bait';
-  bait.style.width = '1px';
-  bait.style.height = '1px';
-  bait.style.position = 'absolute';
-  bait.style.top = '-9999px';
-  document.body.appendChild(bait);
-
-  const baitStyle = getComputedStyle(bait);
-  if (baitStyle.display === 'none' || baitStyle.visibility === 'hidden') adDetected = true;
-  bait.remove();
-
-  // 3️⃣ Script blocking detection (Brave + uBlock + AdGuard)
-  const scriptCheck = new Promise((resolve) => {
-    const testScript = document.createElement('script');
-    testScript.type = 'text/javascript';
-    testScript.async = true;
-    testScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-
-    let called = false;
-    testScript.onerror = () => {
-      if (!called) { called = true; resolve(true); } // Script blocked
-    };
-    testScript.onload = () => {
-      if (!called) { called = true; resolve(false); } // Script loaded
-    };
-
-    document.head.appendChild(testScript);
-  });
-
-  // 4️⃣ Brave-specific detection (navigator properties)
-  const braveCheck = new Promise((resolve) => {
-    if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
-      navigator.brave.isBrave().then((isBrave) => {
-        resolve(isBrave); // true if Brave
-      });
-    } else {
-      resolve(false);
-    }
-  });
-
-  // Combine results
-  Promise.all([scriptCheck, braveCheck]).then(([scriptBlocked, isBrave]) => {
-    if (adDetected || scriptBlocked || isBrave) {
-      showAdBlockWarningAdvanced();
-    }
-  });
-}
-
-function showAdBlockWarningAdvanced() {
-  const overlay = document.createElement('div');
-  overlay.className = 'adblock-overlay';
-  overlay.innerHTML = `
-    <div class="adblock-container">
-      <h2>⚠️ AdBlocker or Brave Detected</h2>
-      <p>We noticed you are using an ad blocker or Brave browser. To access downloads, please disable the ad blocker or use a standard browser, then refresh the page.</p>
-      <button onclick="window.location.reload()" style="background:#ff003c;color:white;padding:10px 25px;border-radius:10px;border:none;font-weight:bold;cursor:pointer;">Reload Page</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-}
-
-// Run advanced detection on page load
-window.addEventListener('load', detectAdBlockerAdvanced);
-
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES (EXISTING CODE, UNTOUCHED)     */
+/* ✅ FETCH & DISPLAY MOVIES (CLEAN & UPDATED)             */
 /* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
@@ -119,7 +38,7 @@ function displayMovies() {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <a href="${q.url}" target="_blank" class="final-download-btn" style="display:inline-block;">Download Now</a>
+                <a href="${q.url}" target="_blank" class="download-btn">Download Now</a>
               </p>
             `
             )
@@ -171,7 +90,7 @@ function displayFiltered(list) {
             .map(
               (q) => `
               <p>📥 ${q.label} →
-                <a href="${q.url}" target="_blank" class="final-download-btn" style="display:inline-block;">Download Now</a>
+                <a href="${q.url}" target="_blank" class="download-btn">Download Now</a>
               </p>
             `
             )
@@ -185,6 +104,46 @@ function displayFiltered(list) {
 }
 
 /* ========================================================= */
-/* ✅ LOAD ALL MOVIES                                         */
+/* ✅ LOAD ALL MOVIES                                        */
 /* ========================================================= */
 fetchMovies();
+
+/* ========================================================= */
+/* ✅ DOWNLOAD BUTTON ANIMATION (Glowing Red)               */
+/* ========================================================= */
+const style = document.createElement('style');
+style.innerHTML = `
+.download-btn {
+  display: inline-block;
+  margin: 5px 0;
+  padding: 10px 20px;
+  color: #fff;
+  background: #ff003c;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 0 10px #ff003c;
+  transition: all 0.3s ease;
+  animation: glowRed 1.5s infinite alternate;
+  text-decoration: none;
+}
+
+.download-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px #ff3366;
+}
+
+@keyframes glowRed {
+  0% {
+    box-shadow: 0 0 10px #ff003c, 0 0 20px #ff3366;
+  }
+  50% {
+    box-shadow: 0 0 15px #ff003c, 0 0 25px #ff3366;
+  }
+  100% {
+    box-shadow: 0 0 20px #ff003c, 0 0 30px #ff3366;
+  }
+}
+`;
+document.head.appendChild(style);
