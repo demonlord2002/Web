@@ -3,38 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎬 My Complete Movie Collection</title>
+  <title>My Complete Movie Collection</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* ===== GLOBAL ===== */
     body {
       font-family: "Poppins", sans-serif;
       background: #0b0b0b;
       color: #fff;
+      text-align: center;
       margin: 0;
       padding: 0;
     }
 
-    header {
-      text-align: center;
-      padding: 30px 10px;
-    }
-
+    header { padding: 20px; }
     h1 {
       color: #ff3c78;
       text-shadow: 0 0 15px #ff3c78;
-      font-size: 2rem;
     }
 
-    p {
-      color: #ccc;
-    }
-
-    /* ===== SEARCH BAR ===== */
     #searchBar {
       width: 80%;
-      max-width: 600px;
-      padding: 12px;
+      padding: 10px;
       border-radius: 10px;
       border: none;
       font-size: 16px;
@@ -50,135 +39,102 @@
       box-shadow: 0 0 15px #ff8800;
     }
 
-    /* ===== NOTICE BOX ===== */
-    .highlight-note {
-      background: linear-gradient(90deg, #ff0055, #ff8800);
-      color: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      margin: 20px auto;
-      width: fit-content;
-      font-weight: bold;
-      animation: blink 1.5s infinite;
-    }
-
-    .highlight-note a {
-      color: #fff;
-      text-decoration: underline;
-      font-weight: 700;
-    }
-
-    .highlight-note a:hover {
-      color: #ffe600;
-    }
-
-    @keyframes blink {
-      0%,100%{opacity:1;}
-      50%{opacity:0.6;}
-    }
-
     .note {
       margin-top: 10px;
       color: #ccc;
       font-size: 14px;
-      text-align: center;
     }
 
-    /* ===== MOVIE GRID (Netflix style) ===== */
-    main#movieContainer {
+    main {
+      padding: 20px;
+    }
+
+    /* Movie container grid */
+    #movieContainer {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 20px;
-      padding: 30px 15px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      padding: 15px;
       justify-items: center;
     }
 
     .movie-card {
       background: #111;
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 15px rgba(255, 60, 120, 0.3);
-      transition: transform 0.3s, box-shadow 0.3s;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
       cursor: pointer;
       width: 100%;
-      max-width: 200px;
+      max-width: 180px;
     }
 
     .movie-card:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 30px rgba(255, 60, 120, 0.7);
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 136, 0, 0.6);
     }
 
     .movie-card img {
       width: 100%;
-      height: 250px;
+      height: 240px;
       object-fit: cover;
       border-bottom: 2px solid #ff3c78;
     }
 
-    .movie-info {
-      padding: 10px;
-      text-align: center;
+    .movie-card h3 {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #ffccff;
     }
 
-    .movie-info h3 {
-      font-size: 1rem;
-      color: #ff99cc;
-      margin: 5px 0;
+    .qualities {
+      margin-bottom: 10px;
     }
 
-    .movie-info p {
-      font-size: 0.85rem;
-      color: #ffcc99;
-      margin: 0;
+    .qualities a {
+      display: inline-block;
+      margin: 3px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #ff3c78, #ff8800);
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 13px;
+      transition: background 0.3s;
     }
 
-    /* ===== PAGINATION ===== */
+    .qualities a:hover {
+      background: linear-gradient(90deg, #ff8800, #ff3c78);
+    }
+
+    /* Pagination */
     .pagination {
       display: flex;
       justify-content: center;
-      gap: 10px;
       margin: 20px 0 40px;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .pagination button {
-      background: linear-gradient(90deg, #ff0055, #ff8800);
+    .page-btn {
+      background: #222;
+      color: white;
+      padding: 8px 15px;
       border: none;
       border-radius: 8px;
-      padding: 8px 14px;
-      color: #fff;
-      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.3s;
+      transition: 0.3s;
     }
 
-    .pagination button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(255, 136, 0, 0.6);
-    }
-
-    .pagination button.active {
-      background: #ff3c78;
+    .page-btn.active {
+      background: linear-gradient(90deg, #ff3c78, #ff8800);
+      font-weight: bold;
       box-shadow: 0 0 10px #ff3c78;
     }
 
-    /* ===== REDIRECT PAGE ===== */
-    .redirect-body {
-      background: radial-gradient(circle at center, #000, #0a0a0a);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: #fff;
-      padding: 20px;
-    }
-
-    .redirect-body h2 {
-      color: #ff003c;
-      text-shadow: 0 0 15px #ff003c;
+    .page-btn:hover {
+      background: #ff8800;
     }
   </style>
 </head>
@@ -186,45 +142,14 @@
 <body>
   <header>
     <h1>🎬 My Complete Movie Collection 🎬</h1>
-    <p>Find your favorite movies instantly!</p>
+    <p>Use the search bar below to find any movie quickly.</p>
     <input type="text" id="searchBar" placeholder="🔎 Search movies..." />
-
-    <div class="highlight-note">
-      ⚠️ <strong>IMPORTANT NOTICE:</strong><br>
-      This website can only be accessed through the <strong>Google Chrome</strong> browser.<br>
-      <a href="https://youtu.be/dazmt81IiZ4?si=laYPuxgrTMXn7Yhd" target="_blank">How to open in Chrome → Click Here</a>
-    </div>
-
-    <p class="note">
-      Please install <strong>Google Chrome</strong> before downloading any movie.
-    </p>
+    <p class="note">Browse your favorite movies and download instantly!</p>
   </header>
 
   <main id="movieContainer"></main>
   <div class="pagination" id="pagination"></div>
 
   <script src="app.js" defer></script>
-
-  <script>
-    // ===== Redirect for in-app browsers =====
-    document.addEventListener("DOMContentLoaded", () => {
-      const ua = navigator.userAgent || '';
-      const isInAppBrowser = /Instagram|FB_IAB|FBAN|FBAV|Telegram|Line|Snapchat|TikTok/i.test(ua);
-      if (isInAppBrowser) {
-        document.body.innerHTML = `
-          <div class="redirect-body">
-            <h2>🚀 For best experience</h2>
-            <p>Open this page in Chrome for smooth movie access.</p>
-            <button id="openInChromeBtn" style="margin-top:20px;background:#00bfff;color:white;border:none;border-radius:30px;padding:12px 28px;font-size:16px;font-weight:600;cursor:pointer;">Open in Chrome</button>
-          </div>
-        `;
-        const btn = document.getElementById("openInChromeBtn");
-        const current = window.location.href.replace(/^https?:\/\//, '');
-        const chromeIntent = `intent://${current}#Intent;scheme=https;package=com.android.chrome;end`;
-        btn.addEventListener("click",()=>window.location.href=chromeIntent);
-        setTimeout(()=>{try{window.location.href=chromeIntent;}catch(e){}},2000);
-      }
-    });
-  </script>
 </body>
 </html>
