@@ -14,12 +14,8 @@ async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
 
-  // ✅ Ensure newest uploads always appear first (no shuffle)
-  movies.sort((a, b) => {
-    const dateA = new Date(a.date || a.uploadedAt || a.id || 0);
-    const dateB = new Date(b.date || b.uploadedAt || b.id || 0);
-    return dateB - dateA; // Newest first
-  });
+  // ✅ Always show the latest uploads first (newest JSON entries last → top)
+  movies = movies.slice().reverse();
 
   displayMovies();
 }
