@@ -8,18 +8,25 @@ const moviesPerPage = 10;
 let filteredMovies = null; // Track filtered list
 
 /* ========================================================= */
-/* ✅ FETCH & DISPLAY MOVIES                                 */
+/* ✅ FETCH & DISPLAY MOVIES (LATEST UPLOADS FIRST)          */
 /* ========================================================= */
 async function fetchMovies() {
   const res = await fetch("/api/movies");
   movies = await res.json();
 
-  // ✅ Show latest uploads first
-  movies.reverse();
+  // ✅ Ensure newest uploads always appear first (no shuffle)
+  movies.sort((a, b) => {
+    const dateA = new Date(a.date || a.uploadedAt || a.id || 0);
+    const dateB = new Date(b.date || b.uploadedAt || b.id || 0);
+    return dateB - dateA; // Newest first
+  });
 
   displayMovies();
 }
 
+/* ========================================================= */
+/* ✅ DISPLAY MOVIES WITH PAGINATION                         */
+/* ========================================================= */
 function displayMovies(list = null) {
   const movieList = list || movies;
   const start = (currentPage - 1) * moviesPerPage;
@@ -54,7 +61,7 @@ function displayMovies(list = null) {
 }
 
 /* ========================================================= */
-/* ✅ PAGINATION WITH PREVIOUS / NEXT                        */
+/* ✅ PAGINATION (PREVIOUS / NEXT)                           */
 /* ========================================================= */
 function setupPagination(list) {
   const pageCount = Math.ceil(list.length / moviesPerPage);
@@ -121,12 +128,12 @@ searchBar.addEventListener("input", (e) => {
 });
 
 /* ========================================================= */
-/* ✅ LOAD ALL MOVIES                                        */
+/* ✅ INITIAL LOAD                                           */
 /* ========================================================= */
 fetchMovies();
 
 /* ========================================================= */
-/* ✅ DOWNLOAD BUTTON ANIMATION (MATCH SITE DESIGN)         */
+/* ✅ DOWNLOAD BUTTON ANIMATION                              */
 /* ========================================================= */
 const style = document.createElement('style');
 style.innerHTML = `
